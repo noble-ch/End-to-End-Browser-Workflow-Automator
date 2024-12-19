@@ -1,35 +1,21 @@
 import { MongoClient } from 'mongodb';
 
-const MONGO_URI = process.env.MONGO_URI;
+const client = new MongoClient(process.env.MONGODB_URI);
 
-if (!MONGO_URI) {
-  throw new Error('Please define the MONGO_URI environment variable inside .env.local');
-}
+let dbConnection;
 
-let client;
-let clientPromise;
-
-if (process.env.NODE_ENV === 'development') {
-  // development mode
-  if (!global._mongoClientPromise) {
-    global._mongoClientPromise = MongoClient.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }).then((client) => {
-      console.log('Successfully connected to MongoDB'); 
-      return client;
-    });
+const connectToDatabase = async () => {
+  try {
+    if (!dbConnection) {
+      await client.connect();
+      dbConnection = client.db('WEBAUTOMATION'); 
+      console.log('Connected to MongoDB on port 27017');
+    }
+    return dbConnection;
+  } catch (error) {
+    console.error('Failed to connect to MongoDB', error);
+    throw error;
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  //  production
-  clientPromise = MongoClient.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }).then((client) => {
-    console.log('Successfully connected to MongoDB'); 
-    return client;
-  });
-}
+};
 
-export default clientPromise;
+export { connectToDatabase };
