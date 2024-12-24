@@ -34,3 +34,4 @@ export const generateDescription = async (prompt) => {
     console.error("Google Generative AI API Error:", error.message || error);
     throw error;
   }
+}
