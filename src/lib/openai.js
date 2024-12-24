@@ -1,3 +1,4 @@
+
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -33,4 +34,3 @@ export const generateDescription = async (prompt) => {
     console.error("Google Generative AI API Error:", error.message || error);
     throw error;
   }
-};
