@@ -9,14 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@google-cloud/aiplatform": "^3.34.0",
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.9",
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
-=======
->>>>>>> e32bf1d49b3692b98b29be6ce942b82e72656f7f
     "mongodb": "^6.12.0",
     "next": "15.1.2",
     "openai": "^4.77.0",
