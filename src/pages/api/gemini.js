@@ -1,6 +1,12 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 
+/*
+    This API route is responsible for handling the POST requests to generate a detailed description of the JSON interaction data.
+    It reads the test.json file from the public folder, prepares the request payload for the Gemini API, and makes a POST request.
+    The response from the Gemini API is then parsed and returned as the API response.
+ */
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
