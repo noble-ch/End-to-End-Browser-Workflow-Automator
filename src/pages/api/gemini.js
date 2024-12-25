@@ -30,7 +30,6 @@ export default async function handler(req, res) {
         ]
       };
 
-      // Make a POST request to the Gemini API
       const apiKey = process.env.GEMINI_API_KEY; 
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
@@ -51,7 +50,6 @@ export default async function handler(req, res) {
 
       const responseData = await response.json();
 
-      // Save response to the database
       const geminiResponse = new GeminiResponse({
         response: JSON.stringify(responseData, null, 2),
       });
