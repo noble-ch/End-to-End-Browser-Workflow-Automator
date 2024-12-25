@@ -1,21 +1,16 @@
 import { MongoClient } from 'mongodb';
 
-const client = new MongoClient(process.env.MONGODB_URI);
+const uri = 'mongodb://localhost:27017'; 
+const options = {};
 
-let dbConnection;
+let client;
+let clientPromise;
 
-const connectToDatabase = async () => {
-  try {
-    if (!dbConnection) {
-      await client.connect();
-      dbConnection = client.db('WEBAUTOMATION'); 
-      console.log('Connected to MongoDB on port 27017');
-    }
-    return dbConnection;
-  } catch (error) {
-    console.error('Failed to connect to MongoDB', error);
-    throw error;
-  }
-};
+// Check if we are running in the server environment
+if (!global._mongoClientPromise) {
+  client = new MongoClient(uri, options);
+  global._mongoClientPromise = client.connect();
+}
 
-export { connectToDatabase };
+// Export the client promise
+export const connectToDatabase = global._mongoClientPromise;
