@@ -1,20 +1,17 @@
+import mongoose from 'mongoose';
 
-//lib/mongodb.js
-// lib/mongodb.js
+const connectToDatabase = async () => {
+  if (mongoose.connection.readyState === 0) {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    } catch (error) {
+      console.error('Database connection error:', error);
+      throw new Error('Database connection failed');
+    }
+  }
+};
 
-import { MongoClient } from 'mongodb';
-
-const uri = 'mongodb://localhost:27017'; 
-const options = {};
-
-let client;
-let clientPromise;
-
-// Check if we are running in the server environment
-if (!global._mongoClientPromise) {
-  client = new MongoClient(uri, options);
-  global._mongoClientPromise = client.connect();
-}
-
-// Export the client promise
-export const connectToDatabase = global._mongoClientPromise;
+export default connectToDatabase;
