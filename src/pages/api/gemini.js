@@ -14,7 +14,7 @@ export default async function handler(req, res) {
       }
 
       // Load the test_puppeteer.js file from the public folder
-      const filePath = path.join(process.cwd(), 'public', 'test_puppeteer.js');
+      const filePath = path.join(process.cwd(), 'public', 'testalx.js');
       const fileData = await fs.readFile(filePath, 'utf8');
 
       // Prepare the request payload for the Gemini API
