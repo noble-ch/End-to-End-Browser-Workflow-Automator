@@ -1,90 +1,76 @@
-//pages.js
 "use client";
 
-import { useState } from 'react';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
-  const [record, setRecord] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
+const LandingPage = () => {
+  const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLearnMore = () => {
+    alert('Learn more about Web Automation!');
+  };
 
-    // Check that both record and prompt are provided
-    if (!record || !prompt) {
-      setError('Both record and prompt are required.');
-      return;
-    }
+  const handleLogin = () => {
+    router.push('/login'); // Navigate to the login page
+  };
 
-    try {
-      // Send a POST request to the backend with the record and prompt
-      const response = await fetch('/api/sendRecord', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ record: JSON.parse(record), prompt }), // Convert record to JSON
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResponseMessage(data.message);
-        setDescription(data.description);
-        setError('');
-      } else {
-        setError(data.error || 'An error occurred while processing your request');
-        setResponseMessage('');
-      }
-    } catch (err) {
-      setError('An error occurred: ' + err.message);
-      setResponseMessage('');
-    }
+  const handleRegister = () => {
+    router.push('/register'); // Navigate to the registration page
   };
 
   return (
-    <div>
-      <h1>Send Record and Prompt</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Record (JSON):</label>
-          <textarea
-            value={record}
-            onChange={(e) => setRecord(e.target.value)}
-            required
-            placeholder='Enter your JSON record here'
-          ></textarea>
-        </div>
-        <div>
-          <label>Prompt:</label>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            required
-            placeholder='Enter your prompt here'
-          ></textarea>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
+    <div style={{ fontFamily: 'Arial, sans-serif', textAlign: 'center', padding: '20px' }}>
+      <h1>Welcome to Web Automation Platform</h1>
+      <p>Empowering you with automated web workflows and interaction recording.</p>
 
-      {responseMessage && (
-        <div>
-          <h3>Success!</h3>
-          <p>{responseMessage}</p>
-          <h4>Generated Description:</h4>
-          <p>{description}</p>
-        </div>
-      )}
+      <div style={{ margin: '20px 0' }}>
+        <button
+          onClick={handleLearnMore}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#0070f3',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            margin: '0 10px',
+          }}
+        >
+          Learn More
+        </button>
 
-      {error && (
-        <div style={{ color: 'red' }}>
-          <h3>Error:</h3>
-          <p>{error}</p>
-        </div>
-      )}
+        <button
+          onClick={handleLogin}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#0070f3',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            margin: '0 10px',
+          }}
+        >
+          Login
+        </button>
+
+        <button
+          onClick={handleRegister}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#0070f3',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            margin: '0 10px',
+          }}
+        >
+          Register
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default LandingPage;

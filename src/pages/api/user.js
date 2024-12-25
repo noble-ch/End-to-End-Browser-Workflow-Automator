@@ -1,33 +1,26 @@
+import jwt from 'jsonwebtoken';
+import connectToDatabase from '@/lib/mongodb';
+import User from '@/models/User';
+
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const authHeader = req.headers.authorization;
-      console.log('Authorization Header:', authHeader);
-
-      if (!authHeader) {
-        return res.status(401).json({ error: 'Authorization header missing' });
-      }
-
-      const token = authHeader.split(' ')[1]; // Extract token
-      console.log('Extracted Token:', token);
-
+      const token = req.headers.authorization?.split(' ')[1]; // Extract token
       if (!token) {
-        return res.status(401).json({ error: 'Token missing' });
+        return res.status(401).json({ error: 'Token is required' });
       }
 
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Find user by ID
-      const user = await User.findById(decoded.userId).select('-password'); // Exclude password
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+      await connectToDatabase();
+
+      const user = await User.findById(decoded.userId).select('-password'); // Fetch user
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      res.status(200).json(user);
+      res.status(200).json({ username: user.username, email: user.email });
     } catch (error) {
-      console.error('Error during user fetch:', error);
-      res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Failed to fetch user information' });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed' });

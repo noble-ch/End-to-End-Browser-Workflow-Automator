@@ -8,26 +8,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Make the API request to authenticate the user
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      // If login is successful, redirect to dashboard or home page
-      window.location.href = '/dashboard';  // Or your desired route
-    } else {
-      // If there’s an error, show an error message
-      setError(data.error || 'Login failed');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+  
+      const data = await response.json();
+      localStorage.setItem('token', data.token); // Store token in localStorage
+      alert('Login successful!');
+      window.location.href = '/dashboard'; // Redirect to dashboard
+    } catch (error) {
+      console.error('Error during login:', error);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
