@@ -1,0 +1,7 @@
+{
+  "record": {
+      "title": "My Task",
+      "description": "I want to do this"
+  },
+  "prompt": "Please save this task in the database."
+}
