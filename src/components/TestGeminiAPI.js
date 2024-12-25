@@ -10,7 +10,7 @@ export default function TestGeminiAPI() {
     setError(null);
 
     try {
-      const res = await fetch('/api/gemini', {
+      const res = await fetch('/api/generate-description', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
