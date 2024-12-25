@@ -1,5 +1,4 @@
 
-// lib/sendRecord.js
 import axios from 'axios';
 
 export const sendRecord = async (record, prompt) => {
