@@ -1,6 +1,9 @@
 //app/lauout.js
 
 import '../../src/app/page'; // Correct the import if necessary
+import '../styles/globes.css';
+
+
 
 export default function RootLayout({ children }) {
   return (
