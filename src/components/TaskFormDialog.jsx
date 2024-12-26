@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function TaskFormDialog() {
   const [file, setFile] = useState(null);
@@ -23,7 +24,7 @@ export default function TaskFormDialog() {
 
   const handleSubmit = () => {
     if (file) {
-      console.log("File:", file.name); 
+      console.log("File:", file.name);
     } else {
       console.log("No file selected");
     }
@@ -32,11 +33,13 @@ export default function TaskFormDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Create a Task</Button>
+        <Button className="bg-primary w-1/2 m-4 hover:bg-white hover:text-primary border">
+          Create a New Task
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Task Submission Form</DialogTitle>
+          <DialogTitle>Task Creation Form</DialogTitle>
           <DialogDescription>
             Fill in the details below and attach your file.
           </DialogDescription>
@@ -52,10 +55,10 @@ export default function TaskFormDialog() {
             <Label htmlFor="description" className="text-right">
               Description
             </Label>
-            <Input
+            <Textarea
               id="description"
               placeholder="Task description"
-              className="col-span-3"
+              className="col-span-3 border`"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -71,7 +74,7 @@ export default function TaskFormDialog() {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleSubmit}>
+          <Button type="submit " onClick={handleSubmit}>
             Save changes
           </Button>
         </DialogFooter>

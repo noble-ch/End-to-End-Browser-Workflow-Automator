@@ -5,15 +5,15 @@ import User from '@/models/User';
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const token = req.headers.authorization?.split(' ')[1]; // Extract token
+      const token = req.headers.authorization?.split(' ')[1]; 
       if (!token) {
         return res.status(401).json({ error: 'Token is required' });
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); 
       await connectToDatabase();
 
-      const user = await User.findById(decoded.userId).select('-password'); // Fetch user
+      const user = await User.findById(decoded.userId).select('-password'); 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }

@@ -9,11 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,61 +25,17 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import TaskFormDialog from "@/components/ui/TaskFormDialog";
 
-
-const Dashboard = () => {
-    const [user, setUser] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const router = useRouter();
-  
-    useEffect(() => {
-      const fetchUser = async () => {
-        try {
-          const token = localStorage.getItem('token'); 
-          if (!token) {
-            setError('No token found. Please log in.');
-            setLoading(false);
-            return;
-          }
-  
-          const response = await fetch('/api/user', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-  
-          if (!response.ok) {
-            throw new Error('Failed to fetch user information.');
-          }
-  
-          const userData = await response.json();
-          setUser(userData);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchUser();
-    }, []);
-  
-
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
-  
-  };
-  
+import { useRouter } from "next/router";
 
 export function NavUser({ user }) {
+  const router = useRouter();
   const { isMobile } = useSidebar();
 
-  
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/auth/signin");
+  };
 
   return (
     <SidebarMenu>
@@ -99,7 +51,7 @@ export function NavUser({ user }) {
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.firstname}</span>
+                <span className="truncate font-semibold">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -146,7 +98,7 @@ export function NavUser({ user }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
@@ -156,7 +108,3 @@ export function NavUser({ user }) {
     </SidebarMenu>
   );
 }
-
-
-
-
