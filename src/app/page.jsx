@@ -1,7 +1,8 @@
+"use client";
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import TaskFormDialog from "@/components/ui/TaskFormDialog";
+
 
 
 const LandingPage = () => {
@@ -12,19 +13,17 @@ const LandingPage = () => {
   };
 
   const handleLogin = () => {
-    router.push('/login'); // Navigate to the login page
+    router.push('/auth/signin'); // Navigate to the login page
   };
 
   const handleRegister = () => {
-    router.push('/register'); // Navigate to the registration page
+    router.push('/auth/signup'); // Navigate to the registration page
   };
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', textAlign: 'center', padding: '20px' }}>
       <h1>Welcome to Web Automation Platform</h1>
       <p>Empowering you with automated web workflows and interaction recording.</p>
-      <TaskFormDialog />
-
 
       <div style={{ margin: '20px 0' }}>
         <button

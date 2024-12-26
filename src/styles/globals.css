@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+    --background: 240, 100%, 98%;
+    --foreground: 240, 10%, 20%;
+    --card: 0, 0%, 100%;
+    --card-foreground: 240, 100%, 20%;
+    --primary: 30, 100%, 50%;
+    --primary-foreground: 0, 0%, 100%;
+    --secondary: 10, 80%, 50%;
+    --secondary-foreground: 0, 0%, 100%;
+    --muted: 0, 0%, 100%;
+    --muted-foreground: 240, 10%, 20%;
+    --accent: 45, 100%, 60%;
+    --accent-foreground: 0, 0%, 100%;
+    --destructive: 0, 80%, 65%;
+    --destructive-foreground: 0, 0%, 100%;
+    --border: 240, 5%, 80%;
+    --input: 240, 5%, 95%;
+    --ring: 30, 100%, 50%;
+    --chart-1: 30, 80%, 55%;
+    --chart-2: 210, 80%, 55%;
+    --chart-3: 120, 80%, 55%;
+    --chart-4: 0, 80%, 55%;
+    --chart-5: 270, 80%, 55%;
+    --radius: 0.5rem; 
+  }

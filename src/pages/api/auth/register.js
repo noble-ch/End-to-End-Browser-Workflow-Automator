@@ -7,14 +7,12 @@ export default async function handler(req, res) {
     try {
       console.log('Registration request:', req.body);
 
-      const { username, email, password, confirmPassword } = req.body;
+      const { firstName, lastName, email, password, confirmPassword } = req.body;
 
-      // Validate password confirmation
       if (password !== confirmPassword) {
         return res.status(400).json({ error: 'Passwords do not match' });
       }
 
-      // Connect to the database
       await connectToDatabase();
 
       // Check if the email is already in use
@@ -28,12 +26,11 @@ export default async function handler(req, res) {
 
       // Create a new user
       const user = new User({
-        username,  // Ensure the username is included
+        firstname: firstName, 
+        lastname: lastName,
         email,
         password: hashedPassword,
       });
-
-      // Save the new user to the database
       await user.save();
 
       console.log('User registered successfully:', user);
