@@ -84,14 +84,12 @@ const Dashboard = () => {
             </div>
           </header>
 
-          <div className="flex flex-1 gap-4 p-4 pt-0">
-            <div className="w-1/2 border min-h-[100vh] md:min-h-min rounded-xl bg-muted/50"></div>
-            <div className="flex flex-col flex-1 gap-4">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-1 border">
-                <div className="aspect-video rounded-xl bg-muted/50 border" />
-              </div>
-              <div className="flex-1 rounded-xl bg-muted/50 border relative">
-                <div className=" h-1/2 rounded-xl bg-muted/50 border" />
+          <div className="grid grid-cols-2 gap-4 p-4 pt-0 h-full">
+            <div className=" border min-h-[100vh] md:min-h-min rounded-xl bg-muted/50" />
+            <div className="flex flex-col flex-1 gap-4 ">
+              <div className="aspect-video rounded-xl bg-muted/50 border" />
+              <div className="grid grid-rows-2 justify-items-end gap-4 rounded-xl bg-muted/50 border h-full">
+                <div className="flex flex-2 rounded-xl bg-muted/50 border w-full" />
                 <TaskFormDialog />
               </div>
             </div>
