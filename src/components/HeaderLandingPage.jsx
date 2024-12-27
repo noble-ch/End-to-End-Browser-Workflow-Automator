@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
 
-export function HeaderComponent() {
+export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className={cn("bg-white shadow-md py-4 px-8")}>
+    <header className="bg-transparent top-0 py-4 px-8 absolute w-full z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold text-primary">
