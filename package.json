@@ -28,6 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
+    "formidable": "^3.5.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.469.0",
     "mongodb": "^6.12.0",

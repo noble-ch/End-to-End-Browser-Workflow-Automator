@@ -1,37 +1,40 @@
-// pages/api/sendRecord.js
-// pages/api/sendRecord.js
-// pages/api/sendRecord.js
-import { connectToDatabase } from "../../lib/mongodb";
-import { generateDescription } from "../../lib/openai.js"; 
+import path from "path";
+import { promises as fs } from "fs";
+import { generateDescription } from "./generateDescription"; // assuming this is your function that generates descriptions
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req) {
+    try {
+      // Check if file is included in the request
+      if (!req.files || !req.files.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
 
-  const { record, prompt } = req.body;
+      // Extract the file and other data from the request
+      const { file } = req.files;
+      const title = req.body.title || "";
+      const description = req.body.description || "";
 
-  if (!record || !prompt) {
-    return res.status(400).json({ error: "Record and prompt are required" });
-  }
+      console.log("Uploaded file:", file);
+      console.log("Title:", title);
+      console.log("Description:", description);
 
-  try {
-    const db = await connectToDatabase();
-    const collection = db.collection("records");
+      // Call the function to generate the description based on the file
+      const geminiResponse = await generateDescription(
+        file,
+        title,
+        description
+      );
 
-    const newRecord = { record, prompt, createdAt: new Date() };
-    const result = await collection.insertOne(newRecord);
-
-    // Generate description using the AI
-    const description = await generateDescription(prompt);
-
-    return res.status(201).json({
-      message: "Record saved successfully",
-      id: result.insertedId,
-      description,
-    });
-  } catch (error) {
-    console.error("Failed to save record:", error.message);
-    return res.status(500).json({ error: "Internal Server Error" });
+      // Send the response back to the client
+      return res.status(200).json(geminiResponse); // Sending Gemini's response back to the client
+    } catch (error) {
+      console.error("Error handling request:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error.message });
+    }
+  } else {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 }
