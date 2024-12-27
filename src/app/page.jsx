@@ -23,11 +23,12 @@ const LandingPage = () => {
 
   return (
     <div className="font-sans">
+      
       {/* Header Section */}
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-white py-16">
+      <section className="relative bg-gradient-to-b from-white py-16 mb-6">
         <img
           src="/Decore.svg"
           alt="Decoration"
@@ -35,12 +36,6 @@ const LandingPage = () => {
         />
         <div className="container mx-auto relative z-10 max-w-6xl grid grid-rows-1 grid-cols-2 gap-8 p-4">
           <div className="text-center md:text-left pt-24">
-            {/* <h1 className="text-primary font-bold mb-6 uppercase">
-              Your Automation Ally for Seamless Web Interaction
-            </h1>
-            <h1 className="text-4xl sm:text-7xl font-bold text-gray-800 mb-6 font-volkhov">
-              Automate, Your Tasks & Enjoy Easy Life
-            </h1> */}
             <Image
               src="/Moto.svg"
               alt="Relaxing Person"
@@ -48,13 +43,11 @@ const LandingPage = () => {
               height={500}
               className=""
             />
-
-            <p className="text-sm text-gray-500 mb-8 font-volkhov">
-              Empowering you with automated web workflows and interaction
-              recording.From Clicks to Code, We’ve Got You Covered.Smart
-              Automation for Smarter Work.Delivering Results, One Line of Code
-              at a Time."
-            </p>
+            <p className="text-sm text-gray-500 my-8 font-volkhov">
+              Empowering you with automated web workflows and <br></br>interaction
+              recording.From Clicks to Code,We’ve Got <br></br> You Covered.Smart
+              Automation for Smarter Work.
+            </p> 
             <div className="flex justify-center md:justify-start gap-4">
               <Button onClick={handleLearnMore} variant="default">
                 Find out more
@@ -80,6 +73,8 @@ const LandingPage = () => {
 
       <section className="py-16">
         <div className="container mx-auto text-center">
+        <h2 className="text-2xl text-gray-500 mb-8">Category</h2>
+
           <h2 className="text-3xl font-bold mb-8">We Offer Best Services</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {[

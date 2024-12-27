@@ -28,8 +28,12 @@ export default function LoginPage() {
 
   return (
     <>
-      <img src="/Decore.svg" className="absolute w-1/3 h-1/2  z-0 " />
-      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+        <img
+          src="/Decore.svg"
+          alt="Decoration"
+          className="absolute top-0 right-0 z-0 max-w-[600px] sm:max-w-[900px]"
+        />
         <div className="flex w-full max-w-sm flex-col gap-6 z-20">
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <LoginForm

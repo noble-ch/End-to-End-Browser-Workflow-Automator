@@ -1,9 +1,6 @@
-//app/lauout.js
 
-import '../../src/app/page'; 
-import '@/styles/globals.css';
-
-
+import "../../src/app/page";
+import "@/styles/globals.css";
 
 export default function RootLayout({ children }) {
   return (
@@ -11,9 +8,7 @@ export default function RootLayout({ children }) {
       <body>
         <div className="main">
           <div className="gradient"></div>
-          <main className="app">
-            {children}
-          </main>
+          <main className="app">{children}</main>
         </div>
       </body>
     </html>
