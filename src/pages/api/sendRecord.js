@@ -35,29 +35,30 @@ export default async function handler(req, res) {
             const fileData = fs.readFileSync(filePath, 'utf8');
             console.log('File Data:', fileData);  // Optionally log the file content
 
-          
+            // Ensure file data is present and not empty
             if (!fileData) {
                 return res.status(400).json({ error: 'File is empty' });
             }
 
-            
+            // Generate description using the Gemini API
             const descriptionResponse = await generateDescription({
                 fileData,  // Pass the file content
                 title: fields.title[0],  // Use the title from the form field
                 description: fields.description[0],  // Use the description from the form field
             });
 
-          
+            // Log the raw response for debugging
             console.log('Raw Generated Description:', descriptionResponse);
 
-            
+            // Extract the description content from the response
             const generatedDescription = descriptionResponse.candidates[0]?.content || 'No description generated';
 
-            console.log('Extracted Generated Description:', generatedDescription);  
-           
+            console.log('Extracted Generated Description:', generatedDescription);  // Log the final description
+
+            // Respond with the generated description
             res.status(200).json({
                 message: 'File uploaded and description generated successfully',
-                description: generatedDescription,  
+                description: generatedDescription,  // Send the extracted description back
             });
         } catch (error) {
             console.error('Error processing the upload:', error.message);
