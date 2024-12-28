@@ -1,12 +1,12 @@
-import puppeteer from 'puppeteer';
-import vm from 'vm';
+import puppeteer from "puppeteer";
+import vm from "vm";
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     const { script } = req.body;
 
     if (!script) {
-      return res.status(400).json({ error: 'Script is required' });
+      return res.status(400).json({ error: "Script is required" });
     }
 
     try {
@@ -29,12 +29,14 @@ export default async function handler(req, res) {
       // Close the browser after execution
       await browser.close();
 
-      res.status(200).json({ message: 'Puppeteer script executed successfully' });
+      res
+        .status(200)
+        .json({ message: "Puppeteer script executed successfully" });
     } catch (error) {
       console.error("Execution Error:", error);
-      res.status(500).json({ error: 'Error executing Puppeteer script' });
+      res.status(500).json({ error: "Error executing Puppeteer script" });
     }
   } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+    res.status(405).json({ error: "Method Not Allowed" });
   }
 }

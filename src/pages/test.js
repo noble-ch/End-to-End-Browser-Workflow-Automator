@@ -21,17 +21,14 @@ export default function TestGeminiAPI() {
     const description = `
     1. Launch a new browser instance using Puppeteer.
     2. Create a new page within the browser.
-    3. Set a default timeout of 5000 milliseconds for page actions.
     4. Set the viewport size to 1356x931 pixels.
-    5. Navigate to the new tab page (chrome://new-tab-page/).
-    6. Click on the search input field using a race condition to find the element among several locators. The click is targeted at a specific offset within the element.
-    7. Fill the search input field with the text "next js ".
-    8. Click on the search input field again using a race condition and a specific offset.
-    9. Fill the search input field with the text "next js code".
-    10. Press the Enter key using the keyboard emulation.
-    11. Release the Enter key using the keyboard emulation.
-    12. Close the browser instance.
-    `;
+    5. Navigate to the website "https://noble-ch.vercel.app".
+    6. Wait for the page to load completely.
+    7. Optionally, wait for a specific element on the page to ensure the content is rendered (e.g., a header or a unique element).
+    8. Log a success message to confirm the website has been successfully opened.
+    9. Close the browser instance.
+`;
+
 
     try {
       const response = await fetch("/api/geminicode", {
@@ -46,7 +43,8 @@ export default function TestGeminiAPI() {
       const responseData = await response.json();
       console.log(responseData);
 
-      const puppeteerScript = responseData?.script || "No Puppeteer script found.";
+      const puppeteerScript =
+        responseData?.script || "No Puppeteer script found.";
 
       // Set the generated Puppeteer code for display
       setGeneratedCode(puppeteerScript);
@@ -68,10 +66,11 @@ export default function TestGeminiAPI() {
     setExecutionResult(null);
 
     try {
+      // Send the generated Puppeteer code to the backend for execution
       const execResponse = await fetch("/api/executePuppeteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: generatedCode }),
+        body: JSON.stringify({ script: generatedCode }), // Send the generated script
       });
 
       if (!execResponse.ok) {
@@ -79,7 +78,7 @@ export default function TestGeminiAPI() {
       }
 
       const execResult = await execResponse.json();
-      setExecutionResult(execResult);
+      setExecutionResult(execResult); // Store the execution result to display it
     } catch (err) {
       setError(err.message);
     } finally {
@@ -126,7 +125,8 @@ export default function TestGeminiAPI() {
               borderRadius: "5px",
             }}
           >
-            {JSON.stringify(executionResult, null, 2)}
+            {JSON.stringify(executionResult, null, 2)}{" "}
+            {/* Display the result */}
           </pre>
         </div>
       )}
