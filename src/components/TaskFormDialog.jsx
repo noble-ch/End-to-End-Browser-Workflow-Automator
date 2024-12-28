@@ -45,11 +45,12 @@ export default function TaskFormDialog() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit the task.");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit the task.");
       }
 
       const result = await response.json();
-      alert(`Task submitted successfully! Description: ${result.description}`);
+      alert(`Task submitted successfully! Description: ${result.generatedDescription}`);
     } catch (error) {
       console.error("Error submitting task:", error);
       alert("Error submitting the task. Please try again.");

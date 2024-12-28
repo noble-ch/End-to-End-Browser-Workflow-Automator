@@ -19,13 +19,13 @@ export default async function handler(req, res) {
       // Find user by email
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ error: 'Invalid email or password' });
+        return res.status(400).json({ error: 'Invalid email' });
       }
 
       // Check if password matches
       const isPasswordCorrect = await bcrypt.compare(password, user.password);
       if (!isPasswordCorrect) {
-        return res.status(400).json({ error: 'Invalid email or password' });
+        return res.status(400).json({ error: 'Invalid password' });
       }
 
       // Generate a JWT token for the user
