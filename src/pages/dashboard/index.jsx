@@ -41,6 +41,7 @@ const Dashboard = () => {
         });
 
         if (!response.ok) {
+          router.push("/");
           throw new Error("Failed to fetch user information.");
         }
 

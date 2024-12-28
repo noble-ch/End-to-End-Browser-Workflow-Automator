@@ -1,40 +1,72 @@
-import path from "path";
-import { promises as fs } from "fs";
-import { generateDescription } from "./generateDescription"; // assuming this is your function that generates descriptions
+import formidable from 'formidable';
+import fs from 'fs';
+import path from 'path';
+import { generateDescription } from './generateDescription';  // Assuming generateDescription is in this file
+
+export const config = {
+    api: {
+        bodyParser: false, 
+    },
+};
 
 export default async function handler(req, res) {
-  if (req) {
-    try {
-      // Check if file is included in the request
-      if (!req.files || !req.files.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
+    if (req.method === 'POST') {
+        const uploadDir = path.join(process.cwd(), '/uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
 
-      // Extract the file and other data from the request
-      const { file } = req.files;
-      const title = req.body.title || "";
-      const description = req.body.description || "";
+        const form = formidable({
+            uploadDir,
+            keepExtensions: true,
+        });
 
-      console.log("Uploaded file:", file);
-      console.log("Title:", title);
-      console.log("Description:", description);
+        try {
+           
+            const [fields, files] = await form.parse(req);
 
-      // Call the function to generate the description based on the file
-      const geminiResponse = await generateDescription(
-        file,
-        title,
-        description
-      );
+           
+            console.log('Fields:', fields);
+            console.log('Files:', files);
 
-      // Send the response back to the client
-      return res.status(200).json(geminiResponse); // Sending Gemini's response back to the client
-    } catch (error) {
-      console.error("Error handling request:", error.message);
-      return res
-        .status(500)
-        .json({ error: "Internal Server Error", details: error.message });
+            
+            const filePath = files.file[0].filepath;
+
+            const fileData = fs.readFileSync(filePath, 'utf8');
+            console.log('File Data:', fileData);  // Optionally log the file content
+
+            // Ensure file data is present and not empty
+            if (!fileData) {
+                return res.status(400).json({ error: 'File is empty' });
+            }
+
+            // Generate description using the Gemini API
+            const descriptionResponse = await generateDescription({
+                fileData,  // Pass the file content
+                title: fields.title[0],  // Use the title from the form field
+                description: fields.description[0],  // Use the description from the form field
+            });
+
+            // Log the raw response for debugging
+            console.log('Raw Generated Description:', descriptionResponse);
+
+            // Extract the description content from the response
+            const generatedDescription = descriptionResponse.candidates[0]?.content || 'No description generated';
+
+            console.log('Extracted Generated Description:', generatedDescription);  // Log the final description
+
+            // Respond with the generated description
+            res.status(200).json({
+                message: 'File uploaded and description generated successfully',
+                description: generatedDescription,  // Send the extracted description back
+            });
+        } catch (error) {
+            console.error('Error processing the upload:', error.message);
+            res.status(500).json({ error: 'Error processing the upload and generating description' });
+        }
+    } else {
+        res.status(405).json({ error: 'Method Not Allowed' });
     }
-  } else {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
 }
+
+
