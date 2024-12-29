@@ -1,4 +1,4 @@
-import { useState } from "react";
+const { useState } = require("react");
 
 /**
  * TestGeminiAPI component
@@ -6,7 +6,7 @@ import { useState } from "react";
  * display the generated Puppeteer code, and then execute the code with a "Run" button.
  */
 
-export default function TestGeminiAPI() {
+function TestGeminiAPI() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,16 +19,211 @@ export default function TestGeminiAPI() {
     setExecutionResult(null);
 
     const description = `
-    1. Launch a new browser instance using Puppeteer.
-    2. Create a new page within the browser.
-    4. Set the viewport size to 1356x931 pixels.
-    5. Navigate to the website "https://noble-ch.vercel.app".
-    6. Wait for the page to load completely.
-    7. Optionally, wait for a specific element on the page to ensure the content is rendered (e.g., a header or a unique element).
-    8. Log a success message to confirm the website has been successfully opened.
-    9. Close the browser instance.
-`;
+const puppeteer = require('puppeteer'); // v23.0.0 or later
 
+(async () => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    const timeout = 5000;
+    page.setDefaultTimeout(timeout);
+
+    {
+        const targetPage = page;
+        await targetPage.setViewport({
+            width: 953,
+            height: 931
+        })
+    }
+    {
+        const targetPage = page;
+        await targetPage.goto('chrome://new-tab-page/');
+    }
+    {
+        const targetPage = page;
+        await targetPage.goto('https://noble-ch.vercel.app/');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('div.col-lg-8'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"about\\"]/div/div[2]/div[2])'),
+            targetPage.locator(':scope >>> div.col-lg-8')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 207.25,
+                y: 398.375,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('main.service-page div:nth-of-type(1) > p'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"services\\"]/div/div[2]/div[1]/p)'),
+            targetPage.locator(':scope >>> main.service-page div:nth-of-type(1) > p'),
+            targetPage.locator('::-p-text(Custom web application)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 154.75,
+                y: 19.5,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Your Name)'),
+            targetPage.locator('div:nth-of-type(2) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[2]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(2) > input')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 46.875,
+                y: 36.953125,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Your Name)'),
+            targetPage.locator('div:nth-of-type(2) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[2]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(2) > input')
+        ])
+            .setTimeout(timeout)
+            .fill('hello');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Your Email)'),
+            targetPage.locator('div:nth-of-type(3) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[3]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(3) > input')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 43.625,
+                y: 42.953125,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Your Email)'),
+            targetPage.locator('div:nth-of-type(3) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[3]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(3) > input')
+        ])
+            .setTimeout(timeout)
+            .fill('noblebiru@yahoo.com');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Subject)'),
+            targetPage.locator('div:nth-of-type(4) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[4]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(4) > input')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 177.875,
+                y: 14.953125,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Enter Subject)'),
+            targetPage.locator('div:nth-of-type(4) > input'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[4]/input)'),
+            targetPage.locator(':scope >>> div:nth-of-type(4) > input')
+        ])
+            .setTimeout(timeout)
+            .fill('Test');
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Your Message)'),
+            targetPage.locator('div.mb-2 > textarea'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[5]/textarea)'),
+            targetPage.locator(':scope >>> div.mb-2 > textarea')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 117.875,
+                y: 37.953125,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Your Message)'),
+            targetPage.locator('div.mb-2 > textarea'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[5]/textarea)'),
+            targetPage.locator(':scope >>> div.mb-2 > textarea')
+        ])
+            .setTimeout(timeout)
+            .fill('hello');
+    }
+    {
+        const target = await browser.waitForTarget(t => t.url() === 'https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Lcvh1IoAAAAAPKT2jxy74Z4liO7JySsYRPYxwY5&co=aHR0cHM6Ly9ub2JsZS1jaC52ZXJjZWwuYXBwOjQ0Mw..&hl=en&type=image&v=zIriijn3uj5Vpknvt_LnfNbF&theme=dark&size=normal&badge=bottomright&cb=qvm05w1cysgq', { timeout });
+        const targetPage = await target.page();
+        targetPage.setDefaultTimeout(timeout);
+        await puppeteer.Locator.race([
+            targetPage.locator('div.recaptcha-checkbox-border'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"recaptcha-anchor\\"]/div[1])'),
+            targetPage.locator(':scope >>> div.recaptcha-checkbox-border')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 15,
+                y: 17.5,
+              },
+            });
+    }
+    {
+        const targetPage = page;
+        await puppeteer.Locator.race([
+            targetPage.locator('::-p-aria(Send Message)'),
+            targetPage.locator('#contact button'),
+            targetPage.locator('::-p-xpath(//*[@id=\\"contact\\"]/div/div[2]/div[2]/form/div/div[5]/button)'),
+            targetPage.locator(':scope >>> #contact button'),
+            targetPage.locator('::-p-text(Send Message)')
+        ])
+            .setTimeout(timeout)
+            .click({
+              offset: {
+                x: 66.875,
+                y: 33.734375,
+              },
+            });
+    }
+
+    await browser.close();
+
+})().catch(err => {
+    console.error(err);
+    process.exit(1);
+});
+
+`;
 
     try {
       const response = await fetch("/api/geminicode", {
@@ -66,11 +261,10 @@ export default function TestGeminiAPI() {
     setExecutionResult(null);
 
     try {
-      // Send the generated Puppeteer code to the backend for execution
       const execResponse = await fetch("/api/executePuppeteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: generatedCode }), // Send the generated script
+        body: JSON.stringify({ script: generatedCode }),
       });
 
       if (!execResponse.ok) {
@@ -78,7 +272,7 @@ export default function TestGeminiAPI() {
       }
 
       const execResult = await execResponse.json();
-      setExecutionResult(execResult); // Store the execution result to display it
+      setExecutionResult(execResult.output); // Display the script output
     } catch (err) {
       setError(err.message);
     } finally {
@@ -125,11 +319,12 @@ export default function TestGeminiAPI() {
               borderRadius: "5px",
             }}
           >
-            {JSON.stringify(executionResult, null, 2)}{" "}
-            {/* Display the result */}
+            {executionResult}
           </pre>
         </div>
       )}
     </div>
   );
 }
+
+module.exports = TestGeminiAPI;

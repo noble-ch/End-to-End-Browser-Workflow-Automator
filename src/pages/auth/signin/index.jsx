@@ -20,7 +20,7 @@ export default function LoginPage() {
       const data = await response.json();
       localStorage.setItem("token", data.token);
       alert("Login successful!");
-      window.location.href = "/dashboard";
+      window.location.href = "/task";
     } catch (error) {
       console.error("Error during login:", error);
       setError("Invalid email or password");

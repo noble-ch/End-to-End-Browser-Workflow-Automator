@@ -1,42 +1,50 @@
-import puppeteer from "puppeteer";
-import vm from "vm";
+import { exec } from "child_process";
+import fs from "fs";
+import path from "path";
 
-export default async function handler(req, res) {
-  if (req.method === "POST") {
-    const { script } = req.body;
+export default function handler(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed" });
+    return;
+  }
 
-    if (!script) {
-      return res.status(400).json({ error: "Script is required" });
-    }
+  const { script } = req.body;
 
-    try {
-      // Launch a new Puppeteer browser instance
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
+  if (!script) {
+    res.status(400).json({ error: "No script provided." });
+    return;
+  }
 
-      // Inject Puppeteer and page into the sandbox context
-      const sandbox = { puppeteer, page, browser };
+  // Remove backticks and language tags (e.g., ```javascript)
+  const sanitizedScript = script.replace(/```[a-zA-Z]*\n?/g, "").trim();
 
-      // Create the context to run the script
-      const context = vm.createContext(sandbox);
+  const tempFilePath = path.join(process.cwd(), "tempPuppeteerScript.js");
 
-      // Log the script for debugging
-      console.log("Executing Script:", script);
+  try {
+    // Write sanitized script to a temporary file
+    fs.writeFileSync(tempFilePath, sanitizedScript);
 
-      // Execute the sanitized script within the sandboxed environment
-      await vm.runInContext(script, context);
+    // Execute the script using Node.js
+    exec(
+      `node ${tempFilePath}`,
+      { timeout: 10000 },
+      (error, stdout, stderr) => {
+        // Clean up the temporary file
+        fs.unlinkSync(tempFilePath);
 
-      // Close the browser after execution
-      await browser.close();
+        if (error) {
+          console.error("Execution error:", stderr || error.message);
+          res.status(500).json({ error: stderr || error.message });
+          return;
+        }
 
-      res
-        .status(200)
-        .json({ message: "Puppeteer script executed successfully" });
-    } catch (error) {
-      console.error("Execution Error:", error);
-      res.status(500).json({ error: "Error executing Puppeteer script" });
-    }
-  } else {
-    res.status(405).json({ error: "Method Not Allowed" });
+        res.status(200).json({ output: stdout });
+      }
+    );
+  } catch (err) {
+    console.error("File handling error:", err.message);
+    res.status(500).json({
+      error: "Internal server error. Could not handle the script file.",
+    });
   }
 }
