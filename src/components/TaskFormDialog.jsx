@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/router"; // Import useRouter
 
 export default function TaskFormDialog() {
   const [title, setTitle] = useState("");
@@ -21,6 +20,7 @@ export default function TaskFormDialog() {
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // Add state for error message
+  const router = useRouter(); // Initialize router for navigation
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -64,11 +64,14 @@ export default function TaskFormDialog() {
       }
 
       const result = await response.json();
-      alert(
-        `Task submitted successfully! Description: ${result.generatedDescription}`
-      );
 
-      // Clear form fields after successful submission
+      const recordId = result.data._id;
+
+      if (recordId) {
+        router.push(`/records/${recordId}`);
+      } else {
+        setErrorMessage("Failed to retrieve the record ID.");
+      }
       setTitle("");
       setDescription("");
       setFile(null);
