@@ -5,7 +5,7 @@ const OutputSchema = new mongoose.Schema({
   script: { type: String, required: true },
   stdout: { type: String },
   stderr: { type: String },
-  screenshots: [{ type: String }], // Array of paths to screenshots
+  screenshots: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
 });
 

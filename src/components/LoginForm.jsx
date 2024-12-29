@@ -36,7 +36,7 @@ export function LoginForm({ className, ...props }) {
                 type="email"
                 placeholder="m@example.com"
                 required
-                className="placeholder-gray-500"
+                className="placeholder-gray-300"
               />
             </div>
             <div className="grid gap-2">
@@ -53,7 +53,7 @@ export function LoginForm({ className, ...props }) {
                         type="password"    
                         placeholder="••••••••" 
                         required
-                        className="placeholder-gray-500"
+                        className="placeholder-gray-300"
                   />
                 </div>
             <Button type="submit" className="w-full hover:text-primary border">

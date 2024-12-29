@@ -3,8 +3,10 @@ import React from "react";
 
 const Header = () => {
   return (
-    <header className="bg-transparent text-white p-4">
-      <h1 className="text-lg text-primary font-bold">Logo</h1>
+    <header className="bg-white p-2 absolute w-full">
+      <a href="/" className="text-lg text-primary font-bold">
+        <h1>Logo</h1>
+      </a>
     </header>
   );
 };

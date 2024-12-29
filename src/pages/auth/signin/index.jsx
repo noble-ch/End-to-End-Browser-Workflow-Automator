@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { LoginForm } from "@/components/LoginForm";
+import { AlertCircle } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -13,16 +16,22 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Login failed");
+        const errorText = await response.text();
+        throw new Error(
+          response.status === 400
+            ? errorText || "Invalid request. Please check your input."
+            : response.status === 401
+            ? "Incorrect email or password."
+            : "Login failed. Please try again."
+        );
       }
-
       const data = await response.json();
       localStorage.setItem("token", data.token);
       alert("Login successful!");
-      window.location.href = "/task";
+      window.location.href = "/dashboard";
     } catch (error) {
       console.error("Error during login:", error);
-      setError("Invalid email or password");
+      setError(error.message);
     }
   };
 
@@ -35,14 +44,24 @@ export default function LoginPage() {
           className="absolute top-0 right-0 z-0 max-w-[600px] sm:max-w-[900px]"
         />
         <div className="flex w-full max-w-sm flex-col gap-6 z-20">
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <LoginForm
             className="w-full"
             onSubmit={(e) => {
               e.preventDefault();
-              const email = e.target.email.value;
-              const password = e.target.password.value;
-              handleLogin(email, password);
+              const email = e.target.elements.email.value;
+              const password = e.target.elements.password.value;
+              if (email && password) {
+                handleLogin(email, password);
+              } else {
+                setError("Email and password are required.");
+              }
             }}
           />
         </div>

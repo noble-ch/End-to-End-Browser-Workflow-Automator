@@ -1,10 +1,9 @@
 import React from "react";
-import Header from "./Header"; // Adjust the path based on your structure
-
+import Header from "./Header";
 const MainLayout = ({ children }) => {
   return (
     <div>
-      <Header />
+      <Header/>
       <main>{children}</main>
     </div>
   );
