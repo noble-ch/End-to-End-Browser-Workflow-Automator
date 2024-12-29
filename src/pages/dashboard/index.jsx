@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import TaskDisplayer from "@/components/TaskDisplayer";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -84,12 +85,15 @@ const Dashboard = () => {
               </Breadcrumb>
             </div>
           </header>
-
           <div className="grid grid-cols-2 gap-4 p-4 pt-0 h-full">
-            <div className=" border min-h-[100vh] md:min-h-min rounded-xl bg-muted/50" />
+            {/* right side of the dashboard */}
+            <div className=" border min-h-[100vh] md:min-h-min rounded-xl bg-muted/50"
+             ><TaskDisplayer/> </div>
+{/* //left side of the dashboard */}
             <div className="flex flex-col flex-1 gap-4 ">
               <div className="aspect-video rounded-xl bg-muted/50 border" />
               <div className="grid grid-rows-2 justify-items-end gap-4 rounded-xl bg-muted/50 border h-full">
+           
                 <div className="flex flex-2 rounded-xl bg-muted/50 border w-full" />
                 <TaskFormDialog />
               </div>
