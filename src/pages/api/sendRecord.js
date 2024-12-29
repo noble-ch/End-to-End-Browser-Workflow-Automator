@@ -40,8 +40,6 @@ export default async function handler(req, res) {
         const storedFilePath = path.join(uploadDir, `${Date.now()}_${file.originalFilename}`);
         fs.copyFileSync(file.filepath, storedFilePath);
 
-        
-
         // Save the response to the database
         await connectToDatabase();
         const geminiResponse = new GeminiResponse({

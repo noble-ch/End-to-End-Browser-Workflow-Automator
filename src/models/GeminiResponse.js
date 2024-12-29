@@ -24,10 +24,6 @@ const GeminiResponseSchema = new mongoose.Schema(
                 required: true,
             },
         },
-        generatedDescription: {  // Add this field for the generated description
-          type: String,
-          required: true,  // If the generated description is mandatory
-        },
     },
     {
         timestamps: true, // Automatically add createdAt and updatedAt fields
