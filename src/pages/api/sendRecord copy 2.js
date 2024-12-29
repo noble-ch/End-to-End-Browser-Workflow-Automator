@@ -1,9 +1,9 @@
 import formidable from "formidable";
 import fs from "fs";
-import path from "path";
 import connectToDatabase from "@/lib/mongodb";
 import GeminiResponse from "@/models/GeminiResponse";
-import jwt from "jsonwebtoken";
+import { generateDescription } from "./generateDescription";
+import jwt from "jsonwebtoken"; 
 
 export const config = {
   api: {
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       }
 
       // Extract user info from the request headers (Assume token is passed in Authorization header)
-      const token = req.headers.authorization?.split(" ")[1];
+      const token = req.headers.authorization?.split(" ")[1]; 
       if (!token) {
         return res.status(401).json({ error: "User not authenticated" });
       }
@@ -44,27 +44,29 @@ export default async function handler(req, res) {
       // Verify the JWT token and extract user information (e.g., user ID)
       let user;
       try {
-        user = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+        user = jwt.verify(token, process.env.JWT_SECRET);
       } catch (error) {
         return res.status(401).json({ error: "Invalid or expired token" });
       }
 
       console.log("Authenticated User:", user);
 
-      // Ensure the upload directory exists
-      const uploadDir = path.join(process.cwd(), "uploads");
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
+    //   const descriptionResponse = await generateDescription({
+    //     fileData,
+    //     title,
+    //     description,
+    //   });
 
-      // Create the path where the file will be saved
-      const filePath = path.join(
-        uploadDir,
-        `${Date.now()}_${file.originalFilename}`
-      );
+      console.log("Raw Generated Description:", descriptionResponse);
 
-      // Save the file locally
-      fs.copyFileSync(file.filepath, filePath);
+      // Extract and convert the description to a string
+      const generatedDescriptionParts =
+        descriptionResponse.candidates[0]?.content?.parts || [];
+      const generatedDescription = generatedDescriptionParts
+        .map((part) => part.text)
+        .join("\n");
+
+      console.log("Extracted Generated Description:", generatedDescription);
 
       // Connect to the database
       await connectToDatabase();
@@ -76,9 +78,11 @@ export default async function handler(req, res) {
         file: {
           filename: file.originalFilename, // Store the file's name
           contentType: file.mimetype, // Store the file's MIME type
-          path: filePath, // Store the file path
+          data: fileData, // Store the file's binary data
         },
-        user: user.userId, // Store the user ID in the database
+        generatedDescription: generatedDescription, // Store the generated description
+        response: generatedDescription, // Store the same description in response or modify as needed
+        user: user.id, // Store the user ID in the database (make sure the user has an 'id' field)
       });
 
       // Save the data to MongoDB
@@ -87,12 +91,16 @@ export default async function handler(req, res) {
 
       // Respond with success
       res.status(200).json({
-        message: "File uploaded successfully",
+        message: "File uploaded and description generated successfully",
         data: savedItem,
       });
     } catch (error) {
       console.error("Error processing the upload:", error.message);
-      res.status(500).json({ error: "Error processing the upload" });
+      res
+        .status(500)
+        .json({
+          error: "Error processing the upload and generating description",
+        });
     }
   } else {
     res.status(405).json({ error: "Method Not Allowed" });

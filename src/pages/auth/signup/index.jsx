@@ -50,12 +50,12 @@ export default function RegisterPage() {
   const [isTermsChecked, setIsTermsChecked] = useState(false);
 
   return (
-    <div className="flex justify-center items-center mt-4 min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center  min-h-screen bg-gray-100">
       <img
         src="/Decore.svg"
         className="absolute inset-0 w-50 h-full object-cover z-0 left-96 ms-96"
       />
-      <Card className=" px-8  bg-white shadow-lg z-20 w-[600px]">
+      <Card className="p-8 bg-white shadow-lg z-20 w-[600px]">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Sign up</CardTitle>
           <CardDescription className="text-center">
@@ -70,7 +70,7 @@ export default function RegisterPage() {
             );
             handleSubmit(formData);
           }}
-          className="mt-2"
+          className="mt-6"
         >
           <div className="flex gap-4">
             <div className="flex-1">
@@ -208,7 +208,7 @@ export default function RegisterPage() {
             </Button>
           </div>
 
-          <p className="my-4 text-center text-sm text-gray-600">
+          <p className="mt-4 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <a href="/auth/signin" className="text-indigo-600">
               Login

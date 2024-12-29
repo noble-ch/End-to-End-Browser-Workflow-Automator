@@ -20,6 +20,7 @@ export default function TaskFormDialog() {
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // Add state for error message
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -27,11 +28,21 @@ export default function TaskFormDialog() {
 
   const handleSubmit = async () => {
     if (!title || !description || !file) {
-      alert("All fields are required!");
+      setErrorMessage("All fields are required!"); // Set error message when fields are missing
       return;
     }
 
     setIsSubmitting(true);
+    setErrorMessage(""); // Reset error message before submitting
+
+    // Get the JWT token from localStorage (or wherever it is stored)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setErrorMessage("Token is required"); // Set error message if token is missing
+      setIsSubmitting(false);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -41,6 +52,9 @@ export default function TaskFormDialog() {
     try {
       const response = await fetch("/api/sendRecord", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Add token to headers
+        },
         body: formData,
       });
 
@@ -50,10 +64,19 @@ export default function TaskFormDialog() {
       }
 
       const result = await response.json();
-      alert(`Task submitted successfully! Description: ${result.generatedDescription}`);
+      alert(
+        `Task submitted successfully! Description: ${result.generatedDescription}`
+      );
+
+      // Clear form fields after successful submission
+      setTitle("");
+      setDescription("");
+      setFile(null);
     } catch (error) {
       console.error("Error submitting task:", error);
-      alert("Error submitting the task. Please try again.");
+      setErrorMessage(
+        error.message || "Error submitting the task. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -110,6 +133,8 @@ export default function TaskFormDialog() {
             />
           </div>
         </div>
+        {/* Display error message if present */}
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         <DialogFooter>
           <Button
             type="button"

@@ -1,5 +1,15 @@
-import { useEffect, useState } from 'react';
-import Link from 'next/link';  // Import Next.js Link component
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 function RecordsList() {
   const [records, setRecords] = useState([]);
@@ -7,59 +17,73 @@ function RecordsList() {
 
   useEffect(() => {
     async function fetchRecords() {
-        try {
-          const token = localStorage.getItem("token"); // Retrieve the token from localStorage
-      
-          if (!token) {
-            setError('No token found, please login');
-            return;
-          }
-      
-          const res = await fetch('/api/getRecords', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`, // Include token in Authorization header
-            },
-          });
-      
-          const data = await res.json();
-      
-          if (res.ok) {
-            setRecords(data.data); // Store the records in state
-          } else {
-            setError(data.error || 'Failed to fetch records'); // Handle errors
-          }
-        } catch (err) {
-          setError(err.message || 'An error occurred'); // Catch other errors
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("No token found, please login");
+          return;
         }
+
+        const res = await fetch("/api/getRecords", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setRecords(data.data);
+        } else {
+          setError(data.error || "Failed to fetch records");
+        }
+      } catch (err) {
+        setError(err.message || "An error occurred");
       }
-      
-    fetchRecords(); // Call function on component mount
+    }
+
+    fetchRecords();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-100 to-blue-200 p-8">
-      <h1 className="text-4xl font-semibold text-center text-gray-800 mb-8">Records List</h1>
-      {error && <p className="text-red-600 text-center mb-6 font-medium">{error}</p>} {/* Display error message */}
-      <ul className="space-y-6">
-        {records.map((record) => (
-          <li key={record._id} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-            <h3 className="text-2xl font-semibold text-blue-700 hover:text-blue-900 transition-colors">{record.title}</h3>
-            <p className="text-gray-600 mt-3">{record.description}</p>
-            <div className="mt-4">
-              <Link href={`/records/${record._id}`} passHref>
-                <button className="inline-block text-white bg-blue-400 py-2 px-6 rounded-lg text-lg hover:bg-blue-500 transition-all">
-                  View Details
-                </button>
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div>
+      {error && <p className="text-red-600 mb-6 font-medium">{error}</p>}
+
+      <Table className="table-auto w-full text-center rounded-lg border">
+        <TableCaption>My Tasks</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {records.map((record) => (
+            <TableRow key={record._id}>
+              <TableCell>{record.title}</TableCell>
+              <TableCell>
+                {new Date(record.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </TableCell>
+              <TableCell>
+                <Link href={`/records/${record._id}`} passHref>
+                  <Button variant="link" as="a">
+                    View Details
+                  </Button>
+                </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
 
 export default RecordsList;
-
-
