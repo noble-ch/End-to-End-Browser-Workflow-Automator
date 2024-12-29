@@ -1,3 +1,4 @@
+//api/user.js
 import jwt from 'jsonwebtoken';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';

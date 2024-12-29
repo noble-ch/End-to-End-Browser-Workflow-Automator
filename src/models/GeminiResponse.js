@@ -31,3 +31,4 @@ const GeminiResponseSchema = new mongoose.Schema(
 );
 
 export default mongoose.models.GeminiResponse || mongoose.model('GeminiResponse', GeminiResponseSchema);
+
