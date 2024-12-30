@@ -1,3 +1,4 @@
+//records
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,10 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import DescriptionHandler from "@/components/DescriptionHandler";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
-  const [description, setDescription] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
@@ -41,25 +42,7 @@ function RecordDetail() {
 
     fetchRecord();
   }, [id]);
-  useEffect(() => {
-
-    async function fetchDescription() {
-      try {
-        const res = await fetch(`/api/getDescription`);
-        const data = await res.json();
-
-        if (res.ok) {
-          setDescription(data.data);
-        } else {
-          setError(data.error || "Failed to fetch record details");
-        }
-      } catch (err) {
-        setError(err.message || "An error occurred");
-      }
-    }
-
-    fetchDescription();
-  }, [id]);
+ 
   const handleGenerateAndRunPuppeteer = async () => {
     if (!record || !record.file) {
       setError("No file available for processing.");
@@ -210,8 +193,7 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                {description.description ||
-                  "No generated description available"}
+              <DescriptionHandler/>
               </p>
             </CardDescription>
           </CardContent>

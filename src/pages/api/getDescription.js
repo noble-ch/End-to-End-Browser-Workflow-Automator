@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     // Fetch all records from the database
     const records = await Description.find({}); // No user-based filtering
-    console.log("Fetched records:", records); // Log the records for debugging
+    // console.log("Fetched records:", records); // Log the records for debugging
 
     if (!records || records.length === 0) {
       return res.status(404).json({ error: "No records found" });

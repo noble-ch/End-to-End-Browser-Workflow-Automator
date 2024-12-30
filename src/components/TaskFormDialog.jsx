@@ -8,8 +8,9 @@ import { useRouter } from "next/router";
 
 export default function TaskFormDialog() {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(""); // for user input description
   const [file, setFile] = useState(null);
+  const [generatedDescription, setGeneratedDescription] = useState(""); // for generated description (not displayed)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); 
   const router = useRouter(); 
@@ -18,38 +19,28 @@ export default function TaskFormDialog() {
     setFile(e.target.files[0]);
   };
 
-  const handleGenerateDescription = async () => {
-    if (!file) {
-        setErrorMessage("File is required for generating description.");
-        return;
-    }
-
+  const handleGenerateDescription = async (recordId) => {
+    console.log("rdid", recordId);
     try {
-        // Create FormData to send the file
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("title", title);  // Assuming title is provided
-        formData.append("description", description);  // Assuming description is provided
+      const response = await fetch("/api/handler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recordId }),
+      });
 
-        const response = await fetch("/api/handler", {
-            method: "POST",
-            body: formData,
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit the task.");
+      }
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to generate description.");
-        }
-
-        const result = await response.json();
-        console.log("Generated Description:", result.generatedDescription);
-        setDescription(result.generatedDescription || "No description generated.");
+      const result = await response.json(); 
+      if (result) {
+        router.push(`/records/${recordId}`);
+      } 
     } catch (error) {
-        console.error("Error generating description:", error.message);
-        setErrorMessage(error.message);
+      setErrorMessage(error.message);
     }
-};
-
+  };
 
   const handleSubmit = async () => {
     if (!title || !description || !file) {
@@ -70,7 +61,7 @@ export default function TaskFormDialog() {
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("description", description);
+    formData.append("description", description); // Use the user input description, not the generated one
     formData.append("file", file);
 
     try {
@@ -91,15 +82,16 @@ export default function TaskFormDialog() {
       const recordId = result.data._id;
 
       if (recordId) {
-        router.push(`/records/${recordId}`);
+       handleGenerateDescription(recordId);
+       console.log("recordid", recordId)
       } else {
         setErrorMessage("Failed to retrieve the record ID.");
       }
+
       setTitle("");
       setDescription("");
       setFile(null);
     } catch (error) {
-      console.error("Error submitting task:", error);
       setErrorMessage(error.message || "Error submitting the task. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -155,10 +147,7 @@ export default function TaskFormDialog() {
         <DialogFooter>
           <Button
             type="button"
-            onClick={() => {
-              handleGenerateDescription();
-              handleSubmit();
-            }}
+            onClick={handleSubmit}
             disabled={isSubmitting}
             className={isSubmitting ? "opacity-50" : ""}
           >
@@ -169,3 +158,4 @@ export default function TaskFormDialog() {
     </Dialog>
   );
 }
+
