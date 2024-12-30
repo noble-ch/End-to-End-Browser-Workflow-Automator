@@ -4,7 +4,7 @@ import fs from 'fs';
 import { generateDescription } from './generateDescription';
 import connectToDatabase from '@/lib/mongodb';// Import the connectToDatabase function
 import Description from '@/models/Description'; // Import the Description model
-
+import jwt from "jsonwebtoken";
 export const config = {
     api: {
         bodyParser: false, // Disable body parsing, so formidable can parse the form data
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
                 generatedDescription,
                 title,
             description, // Assuming description is part of the form fields
-                file,
+
             });
 
             await newDescription.save(); // Save the generated description to the database
