@@ -13,6 +13,7 @@ import { ArrowLeft } from "lucide-react";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
+  const [description, setDescription] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
@@ -39,6 +40,25 @@ function RecordDetail() {
     }
 
     fetchRecord();
+  }, [id]);
+  useEffect(() => {
+
+    async function fetchDescription() {
+      try {
+        const res = await fetch(`/api/getDescription`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setDescription(data.data);
+        } else {
+          setError(data.error || "Failed to fetch record details");
+        }
+      } catch (err) {
+        setError(err.message || "An error occurred");
+      }
+    }
+
+    fetchDescription();
   }, [id]);
   const handleGenerateAndRunPuppeteer = async () => {
     if (!record || !record.file) {
@@ -190,7 +210,7 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                {record.generatedDescription ||
+                {description.description ||
                   "No generated description available"}
               </p>
             </CardDescription>

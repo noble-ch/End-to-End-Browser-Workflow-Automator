@@ -1,45 +1,69 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/router"; // Import useRouter
+import { useRouter } from "next/router";
 
 export default function TaskFormDialog() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // Add state for error message
-  const router = useRouter(); // Initialize router for navigation
+  const [errorMessage, setErrorMessage] = useState(""); 
+  const router = useRouter(); 
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+  const handleGenerateDescription = async () => {
+    if (!file) {
+        setErrorMessage("File is required for generating description.");
+        return;
+    }
+
+    try {
+        // Create FormData to send the file
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("title", title);  // Assuming title is provided
+        formData.append("description", description);  // Assuming description is provided
+
+        const response = await fetch("/api/handler", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to generate description.");
+        }
+
+        const result = await response.json();
+        console.log("Generated Description:", result.generatedDescription);
+        setDescription(result.generatedDescription || "No description generated.");
+    } catch (error) {
+        console.error("Error generating description:", error.message);
+        setErrorMessage(error.message);
+    }
+};
+
+
   const handleSubmit = async () => {
     if (!title || !description || !file) {
-      setErrorMessage("All fields are required!"); // Set error message when fields are missing
+      setErrorMessage("All fields are required!");
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMessage(""); // Reset error message before submitting
+    setErrorMessage(""); 
 
-    // Get the JWT token from localStorage (or wherever it is stored)
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setErrorMessage("Token is required"); // Set error message if token is missing
+      setErrorMessage("Token is required");
       setIsSubmitting(false);
       return;
     }
@@ -53,7 +77,7 @@ export default function TaskFormDialog() {
       const response = await fetch("/api/sendRecord", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // Add token to headers
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
@@ -64,7 +88,6 @@ export default function TaskFormDialog() {
       }
 
       const result = await response.json();
-
       const recordId = result.data._id;
 
       if (recordId) {
@@ -77,9 +100,7 @@ export default function TaskFormDialog() {
       setFile(null);
     } catch (error) {
       console.error("Error submitting task:", error);
-      setErrorMessage(
-        error.message || "Error submitting the task. Please try again."
-      );
+      setErrorMessage(error.message || "Error submitting the task. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,9 +122,7 @@ export default function TaskFormDialog() {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
-              Title
-            </Label>
+            <Label htmlFor="title" className="text-right">Title</Label>
             <Input
               id="title"
               placeholder="Task title"
@@ -113,9 +132,7 @@ export default function TaskFormDialog() {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
-              Description
-            </Label>
+            <Label htmlFor="description" className="text-right">Description</Label>
             <Textarea
               id="description"
               placeholder="Task description"
@@ -125,9 +142,7 @@ export default function TaskFormDialog() {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="file" className="text-right">
-              Upload File
-            </Label>
+            <Label htmlFor="file" className="text-right">Upload File</Label>
             <Input
               id="file"
               type="file"
@@ -136,12 +151,14 @@ export default function TaskFormDialog() {
             />
           </div>
         </div>
-        {/* Display error message if present */}
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         <DialogFooter>
           <Button
             type="button"
-            onClick={handleSubmit}
+            onClick={() => {
+              handleGenerateDescription();
+              handleSubmit();
+            }}
             disabled={isSubmitting}
             className={isSubmitting ? "opacity-50" : ""}
           >
