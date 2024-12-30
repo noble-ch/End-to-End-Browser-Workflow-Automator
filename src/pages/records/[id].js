@@ -17,6 +17,7 @@ function RecordDetail() {
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
   const [executionResult, setExecutionResult] = useState(null);
+  const [geminiResponseData, setGeminiResponseData] = useState(null); // New state for Gemini response
   const router = useRouter();
   const { id } = router.query;
 
@@ -40,6 +41,7 @@ function RecordDetail() {
 
     fetchRecord();
   }, [id]);
+
   const handleGenerateAndRunPuppeteer = async () => {
     if (!record || !record.file) {
       setError("No file available for processing.");
@@ -49,51 +51,64 @@ function RecordDetail() {
     setLoading(true);
     setError(null);
     setExecutionResult(null);
+    setGeminiResponseData(null); // Clear previous Gemini response
 
     try {
-      // Step 1: Extract the file as a Base64-encoded string
-      const file = record.file.file || record.file; // Ensure to access the file object
-      const reader = new FileReader();
-      console.log("sssvv");
+      // Step 1: Extract the JavaScript code from the file content
+      const fileContent = record.file.content; // Ensure 'content' has the JS code
 
-      reader.onloadend = async () => {
-        const description = reader.result.split(",")[1]; // Extract Base64 string (excluding 'data:image/png;base64,')
-        console.log("sss", description);
+      if (!fileContent) {
+        setError("File content is missing.");
+        return;
+      }
 
-        // Step 2: Send the Base64 string to the Gemini API to generate Puppeteer code
-        const geminiResponse = await fetch("/api/geminicode", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ description }), // Send Base64 string as description
-        });
+      // Step 2: Send the file content (JavaScript code) to the Gemini API to generate Puppeteer code
+      const geminiResponse = await fetch("/api/geminicode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: fileContent, recordId: id }), // Send file content and record ID
+      });
 
-        if (!geminiResponse.ok) {
-          throw new Error(`Gemini API error! Status: ${geminiResponse.status}`);
-        }
+      if (!geminiResponse.ok) {
+        throw new Error(`Gemini API error! Status: ${geminiResponse.status}`);
+      }
 
-        const geminiData = await geminiResponse.json();
-        const puppeteerScript =
-          geminiData?.script || "No Puppeteer script found.";
+      const geminiData = await geminiResponse.json();
+      const puppeteerScript =
+        geminiData?.script || "No Puppeteer script found.";
 
-        setGeneratedCode(puppeteerScript); // Save generated Puppeteer code
+      setGeminiResponseData(geminiData); // Save Gemini response for display
+      setGeneratedCode(puppeteerScript); // Save generated Puppeteer code
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Step 3: Automatically execute the generated Puppeteer code
-        const execResponse = await fetch("/api/executePuppeteer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ script: puppeteerScript }),
-        });
+  const handleRunPuppeteer = async () => {
+    if (!generatedCode) {
+      setError("No Puppeteer code to run.");
+      return;
+    }
 
-        if (!execResponse.ok) {
-          throw new Error(`Execution error! Status: ${execResponse.status}`);
-        }
+    setLoading(true);
+    setExecutionResult(null);
 
-        const execResult = await execResponse.json();
-        setExecutionResult(execResult.output); // Save execution result
-      };
+    try {
+      // Step 3: Automatically execute the generated Puppeteer code
+      const execResponse = await fetch("/api/executePuppeteer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: generatedCode }),
+      });
 
-      // Start reading the file as a Data URL (Base64)
-      reader.readAsDataURL(file);
+      if (!execResponse.ok) {
+        throw new Error(`Execution error! Status: ${execResponse.status}`);
+      }
+
+      const execResult = await execResponse.json();
+      setExecutionResult(execResult.output); // Save execution result
     } catch (err) {
       setError(err.message);
     } finally {
@@ -200,12 +215,30 @@ function RecordDetail() {
 
       {/* Button to generate and run Puppeteer code */}
       <div className="my-4">
-        {/* <Button onClick={handleGenerateAndRunPuppeteer} disabled={loading}>
-          {loading ? "Processing..." : "Generate and Run Puppeteer"}
-        </Button> */}
+        <Button onClick={handleGenerateAndRunPuppeteer} disabled={loading}>
+          {loading ? "Processing..." : "Generate Puppeteer Code"}
+        </Button>
       </div>
 
-      {/* Display generated code and execution result */}
+      {/* Display generated code from Gemini response */}
+      {geminiResponseData && (
+        <div>
+          <h2 className="text-xl font-semibold">Gemini Response</h2>
+          <pre
+            style={{
+              backgroundColor: "#f4f4f4",
+              padding: "10px",
+              borderRadius: "5px",
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
+            }}
+          >
+            {JSON.stringify(geminiResponseData, null, 2)}
+          </pre>
+        </div>
+      )}
+
+      {/* Display generated Puppeteer code */}
       {generatedCode && (
         <div>
           <h2 className="text-xl font-semibold">Generated Puppeteer Code</h2>
@@ -214,15 +247,19 @@ function RecordDetail() {
               backgroundColor: "#f4f4f4",
               padding: "10px",
               borderRadius: "5px",
-              whiteSpace: "pre-wrap", // Ensure wrapping of long lines
-              wordWrap: "break-word", // Allow wrapping
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
             }}
           >
             {generatedCode}
           </pre>
+          <Button onClick={handleRunPuppeteer} disabled={loading}>
+            {loading ? "Running..." : "Run Puppeteer"}
+          </Button>
         </div>
       )}
 
+      {/* Display execution result */}
       {executionResult && (
         <div>
           <h2 className="text-xl font-semibold">Execution Result</h2>

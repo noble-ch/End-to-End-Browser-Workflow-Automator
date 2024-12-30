@@ -17,14 +17,11 @@ export default async function handler(req, res) {
 
     // Verify the JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded JWT:", decoded); // Log the decoded token for debugging
 
     await connectToDatabase();
 
     // Fetch the records that belong to the authenticated user based on their userId
     const records = await GeminiResponse.find({ user: decoded.userId }); // Filter by userId
-    console.log("Querying for userId:", decoded.userId); // Log the query to check what we're searching for
-    console.log("User's records:", records); // Log the records to verify the results
 
     if (!records || records.length === 0) {
       return res.status(404).json({ error: "No records found for this user" });

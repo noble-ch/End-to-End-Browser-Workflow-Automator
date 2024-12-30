@@ -16,11 +16,9 @@ export default async function handler(req, res) {
     const form = formidable({
       keepExtensions: true,
     });
-
     try {
       // Parse the form data
       const [fields, files] = await form.parse(req);
-
       console.log("Fields:", fields);
 
       // Extract the necessary fields and file data
@@ -34,11 +32,9 @@ export default async function handler(req, res) {
           .status(400)
           .json({ error: "Title and description are required." });
       }
-
       if (!file) {
         return res.status(400).json({ error: "No file uploaded." });
       }
-
       // Ensure the file is a JavaScript file
       if (
         file.mimetype !== "application/javascript" &&
@@ -48,14 +44,12 @@ export default async function handler(req, res) {
           .status(400)
           .json({ error: "The uploaded file must be a JavaScript file." });
       }
-
       // Read the file as text (JavaScript code)
       const fileData = fs.readFileSync(file.filepath, "utf-8");
 
       if (!fileData) {
         return res.status(400).json({ error: "File is empty." });
       }
-
       // Extract user info from the request headers (Assume token is passed in Authorization header)
       const token = req.headers.authorization?.split(" ")[1];
       if (!token) {
@@ -63,7 +57,6 @@ export default async function handler(req, res) {
           .status(401)
           .json({ error: "Authentication token is missing." });
       }
-
       // Verify the JWT token and extract user information (e.g., user ID)
       let user;
       try {
@@ -71,12 +64,9 @@ export default async function handler(req, res) {
       } catch (error) {
         return res.status(401).json({ error: "Invalid or expired token." });
       }
-
       console.log("Authenticated User:", user);
-
       // Connect to the database
       await connectToDatabase();
-
       // Create the response object for MongoDB, storing the JS code as a string
       const geminiResponse = new GeminiResponse({
         title,
@@ -92,7 +82,6 @@ export default async function handler(req, res) {
       // Save the data to MongoDB
       const savedItem = await geminiResponse.save();
       console.log("Saved Item:", savedItem);
-
       // Respond with success
       res.status(200).json({
         message: "File uploaded and code extracted successfully",

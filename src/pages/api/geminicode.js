@@ -1,24 +1,19 @@
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
-  console.log("Method:", req.method);
-  console.log("Body:", req.body);
-
   if (req.method === "POST") {
     try {
-      const { description } = req.body;
+      const { description, recordId } = req.body;
+
       if (!description) {
         return res.status(400).json({ error: "Description is required" });
       }
-
       const jsonData = {
         contents: [
           {
             parts: [
               {
-                text: `  given a puppeteer code  add screenshot on major steps  provide only the updated code no explanation needed  , set the timeout 5 minute , when naming the images add step infront of them
-          
-          Here is the Puppeteer code:\n\n${description}`,
+                text: `Given a Puppeteer script, add a screenshot at each major step, saving the screenshots to the directory '/output/${recordId}/' relative to the project root. The screenshots should be named 'step1_viewport.png', 'step2_navigation.png', etc. make sure the timeout is a 2-minute timeout for all steps. Here is the updated Puppeteer code (only the updated code, no explanation needed):\n\n${description}`,
               },
             ],
           },
