@@ -8,42 +8,42 @@ export default async function handler(req, res) {
     try {
       const { email, password } = req.body;
 
-      // Validate user input
       if (!email || !password) {
-        return res
-          .status(400)
-          .json({ error: "Email and password are required" });
+        return res.status(400).json({ error: "Email and password are required." });
       }
 
-      // Connect to the database
       await connectToDatabase();
 
-      // Find user by email
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ error: "Invalid email" });
+        return res.status(400).json({ error: "Invalid email or password." });
       }
 
-      // Check if password matches
       const isPasswordCorrect = await bcrypt.compare(password, user.password);
       if (!isPasswordCorrect) {
-        return res.status(400).json({ error: "Invalid password" });
+        return res.status(400).json({ error: "Invalid email or password." });
       }
 
-      // Generate a JWT token for the user
-      const token = jwt.sign(
+      // Generate tokens
+      const accessToken = jwt.sign(
         { userId: user._id, email: user.email },
-        process.env.JWT_SECRET, // Make sure this is not undefined
+        process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
 
-      // Return the token to the client
-      res.status(200).json({ message: "Login successful", token });
+      const refreshToken = jwt.sign(
+        { userId: user._id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.status(200).json({ accessToken, refreshToken });
     } catch (error) {
       console.error("Error during login:", error);
-      res.status(500).json({ error: "Login failed" });
+      res.status(500).json({ error: "Login failed. Please try again." });
     }
   } else {
     res.status(405).json({ error: "Method Not Allowed" });
   }
 }
+

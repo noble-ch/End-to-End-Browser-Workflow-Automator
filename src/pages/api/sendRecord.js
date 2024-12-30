@@ -20,7 +20,6 @@ export default async function handler(req, res) {
     try {
       // Parse the form data
       const [fields, files] = await form.parse(req);
-      console.log("Fields:", fields);
 
       // Extract the necessary fields and file data
       const title = fields.title?.[0]; // Optional chaining in case the field is missing
@@ -65,7 +64,6 @@ export default async function handler(req, res) {
       } catch (error) {
         return res.status(401).json({ error: "Invalid or expired token." });
       }
-      console.log("Authenticated User:", user);
       // Connect to the database
       await connectToDatabase();
       // Create the response object for MongoDB, storing the JS code as a string
@@ -82,7 +80,6 @@ export default async function handler(req, res) {
 
       // Save the data to MongoDB
       const savedItem = await geminiResponse.save();
-      console.log("Saved Item:", savedItem);
       // Respond with success
       res.status(200).json({
         message: "File uploaded and code extracted successfully",

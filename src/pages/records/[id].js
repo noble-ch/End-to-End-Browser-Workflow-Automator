@@ -1,3 +1,4 @@
+//records
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,10 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import DescriptionHandler from "@/components/DescriptionHandler";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
-  const [description, setDescription] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
@@ -204,8 +205,7 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                {description.description ||
-                  "No generated description available"}
+              <DescriptionHandler/>
               </p>
             </CardDescription>
           </CardContent>
