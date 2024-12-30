@@ -19,19 +19,18 @@ const GeminiResponseSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      path: {
+      content: {
         type: String,
         required: true,
       },
     },
     user: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export default mongoose.models.GeminiResponse ||
