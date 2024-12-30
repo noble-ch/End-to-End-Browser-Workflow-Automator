@@ -18,7 +18,7 @@ function RecordsList() {
   useEffect(() => {
     async function fetchRecords() {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
 
         if (!token) {
           setError("No token found, please login");
