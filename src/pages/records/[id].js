@@ -13,6 +13,7 @@ import { ArrowLeft } from "lucide-react";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
+  const [description, setDescription] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState(null);
@@ -41,7 +42,6 @@ function RecordDetail() {
 
     fetchRecord();
   }, [id]);
-
   const handleGenerateAndRunPuppeteer = async () => {
     if (!record || !record.file) {
       setError("No file available for processing.");
@@ -51,8 +51,7 @@ function RecordDetail() {
     setLoading(true);
     setError(null);
     setExecutionResult(null);
-    setGeminiResponseData(null); // Clear previous Gemini response
-
+    setGeminiResponseData(null);
     try {
       // Step 1: Extract the JavaScript code from the file content
       const fileContent = record.file.content; // Ensure 'content' has the JS code
@@ -108,7 +107,7 @@ function RecordDetail() {
       }
 
       const execResult = await execResponse.json();
-      setExecutionResult(execResult.output); // Save execution result
+      setExecutionResult(execResult.output);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -205,7 +204,7 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                {record.generatedDescription ||
+                {description.description ||
                   "No generated description available"}
               </p>
             </CardDescription>
@@ -219,24 +218,6 @@ function RecordDetail() {
           {loading ? "Processing..." : "Generate Puppeteer Code"}
         </Button>
       </div>
-
-      {/* Display generated code from Gemini response */}
-      {geminiResponseData && (
-        <div>
-          <h2 className="text-xl font-semibold">Gemini Response</h2>
-          <pre
-            style={{
-              backgroundColor: "#f4f4f4",
-              padding: "10px",
-              borderRadius: "5px",
-              whiteSpace: "pre-wrap",
-              wordWrap: "break-word",
-            }}
-          >
-            {JSON.stringify(geminiResponseData, null, 2)}
-          </pre>
-        </div>
-      )}
 
       {/* Display generated Puppeteer code */}
       {generatedCode && (

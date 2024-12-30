@@ -9,7 +9,23 @@ export async function generateDescription({ fileData }) {
         {
           parts: [
             {
-              text: `Given the following Puppeteer script, break it down into individual steps. Focus on providing a clear and concise step-by-step explanation. Here is the Puppeteer script:\n\n${fileData}\n\nThe description should be structured as follows:\n1. Import Puppeteer library.\n2. Launch a new browser instance.\n3. Create a new page.\n4. Set default timeout and viewport size.\n5. Navigate to the specified URL.\n6. Perform actions like locating elements, filling inputs, or simulating interactions.\n7. Log success messages or handle errors.\n8. Close the browser.\n\nEnsure the explanation focuses only on essential details.`
+              text:`Here’s a step-by-step breakdown of the Puppeteer script. We’ll go through what each part does in simple terms. The script looks like this:
+
+              ${fileData}
+              
+              Please explain it in the following way:
+              
+              1. **Start by using Puppeteer**: The script begins by using Puppeteer to control the browser.
+              2. **Open a browser**: A new browser session is started to interact with the web.
+              3. **Open a new page**: A blank page is opened within the browser for the script to work on.
+              4. **Set up the page**: The script sets things up like the page's size and how long to wait for actions to complete.
+              5. **Go to a website**: The script navigates to a specific webpage to perform actions on it.
+              6. **Do actions**: The script interacts with the page by finding buttons, filling in forms, or clicking on elements.
+              7. **Check for errors**: If everything works, a success message is shown, or if there’s an error, it is handled properly.
+              8. **Close the browser**: Once everything is done, the browser is closed.
+              
+              Keep it simple and clear so anyone can understand what’s happening in each step. Thanks!
+              `
             },
           ],
         },

@@ -5,12 +5,15 @@ const OutputSchema = new mongoose.Schema(
   {
     recordId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Record", // Reference to the Record model (you should have this model for your records)
+      ref: "Record",
+      required: true,
+    },
+    script: {
+      type: String,
       required: true,
     },
     output: {
       type: String,
-      required: true,
     },
     imagePaths: {
       type: [String],

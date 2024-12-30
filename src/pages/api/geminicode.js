@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import Output from "@/models/Output";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -8,12 +9,21 @@ export default async function handler(req, res) {
       if (!description) {
         return res.status(400).json({ error: "Description is required" });
       }
+
+      // Check if the output with the recordId already exists in the database
+      const existingOutput = await Output.findOne({ recordId });
+      if (existingOutput) {
+        // If found, return the existing script
+        return res.status(200).json({ script: existingOutput.script });
+      }
+
+      // Generate a new script using Gemini API if not found in the database
       const jsonData = {
         contents: [
           {
             parts: [
               {
-                text: `Given a Puppeteer script, add a screenshot at each major step, saving the screenshots to the directory '/output/${recordId}/' relative to the project root. The screenshots should be named 'step1_viewport.png', 'step2_navigation.png', etc. make sure the timeout is a 2-minute timeout for all steps. Here is the updated Puppeteer code (only the updated code, no explanation needed):\n\n${description}`,
+                text: `Given a Puppeteer script, add a screenshot at each major step, saving the screenshots to the directory '/output/${recordId}/' relative to the project root. The screenshots should be named 'step1_viewport.png', 'step2_navigation.png', etc. Make sure the timeout is a 2-minute timeout for all steps. Here is the updated Puppeteer code (only the updated code, no explanation needed):\n\n${description}`,
               },
             ],
           },
@@ -39,7 +49,7 @@ export default async function handler(req, res) {
       const responseData = await response.json();
       console.log("Gemini Response:", responseData);
 
-      // Extract only the Puppeteer script from the response
+      // Extract the Puppeteer script from the response
       const puppeteerScript =
         responseData.candidates[0]?.content?.parts[0]?.text;
 
@@ -49,10 +59,17 @@ export default async function handler(req, res) {
           .json({ error: "Puppeteer script not found in response" });
       }
 
-      // Clean the script by removing unnecessary information and formatting it as JavaScript
       const formattedScript = `\`\`\`javascript\n${puppeteerScript}\n\`\`\``;
 
-      // Send the formatted Puppeteer script back to the user
+      // Store the formatted script in the database
+      const newOutput = new Output({
+        recordId: recordId,
+        script: formattedScript,
+      });
+
+      await newOutput.save();
+
+      // Return the newly generated script
       res.status(200).json({ script: formattedScript });
     } catch (error) {
       console.error("Error:", error);
