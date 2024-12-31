@@ -1,50 +1,85 @@
 import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
+import ExecutionOutput from "@/models/Output";
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { script } = req.body;
+  const { recordId, scriptId, script } = req.body;
 
-  if (!script) {
-    res.status(400).json({ error: "No script provided." });
-    return;
+  if (!script || !recordId || !scriptId) {
+    return res.status(400).json({ error: "Missing required parameters" });
   }
 
-  // Remove backticks and language tags (e.g., ```javascript)
-  const sanitizedScript = script.replace(/```[a-zA-Z]*\n?/g, "").trim();
+  const runId = Date.now(); // Unique identifier for this execution
+  const outputDir = path.join(process.cwd(), `output/${recordId}/${runId}/`);
+  fs.mkdirSync(outputDir, { recursive: true }); // Ensure output directory exists
+
+  // Replace placeholders for `recordId`, `runId`, and `outputDir` in the script
+  const sanitizedScript = script
+    .replace(/```[a-zA-Z]*\n?/g, "") // Remove code block markers
+    .replace(
+      /const\s+recordId\s*=\s*'[^']*';/,
+      `const recordId = '${recordId}';`
+    )
+    .replace(/const\s+runId\s*=\s*'[^']*';/, `const runId = '${runId}';`)
+    .replace(
+      /const\s+outputDir\s*=\s*path\.join\(__dirname,\s*'[^']*'\);/,
+      `const outputDir = path.join(__dirname, '${outputDir}');`
+    )
+    .trim();
 
   const tempFilePath = path.join(process.cwd(), "tempPuppeteerScript.js");
 
   try {
-    // Write sanitized script to a temporary file
+    // Write the sanitized script to a temporary file
     fs.writeFileSync(tempFilePath, sanitizedScript);
 
-    // Execute the script using Node.js
     exec(
       `node ${tempFilePath}`,
-      { timeout: 10000 },
-      (error, stdout, stderr) => {
-        // Clean up the temporary file
-        fs.unlinkSync(tempFilePath);
+      { timeout: 120000 }, // Set a timeout for Puppeteer tasks
+      async (error, stdout, stderr) => {
+        fs.unlinkSync(tempFilePath); // Clean up temp file after execution
 
         if (error) {
           console.error("Execution error:", stderr || error.message);
-          res.status(500).json({ error: stderr || error.message });
-          return;
+          await ExecutionOutput.create({
+            recordId,
+            scriptId,
+            runId,
+            status: "failed",
+            error: stderr || error.message,
+          });
+          return res.status(500).json({ error: stderr || error.message });
         }
 
-        res.status(200).json({ output: stdout });
+        // Collect screenshots from the output directory
+        const screenshots = fs
+          .readdirSync(outputDir)
+          .filter((file) => file.endsWith(".png"))
+          .map((file) => ({
+            path: path.join(outputDir, file),
+            timestamp: new Date(),
+          }));
+
+        // Save execution details to the database
+        await ExecutionOutput.create({
+          recordId,
+          scriptId,
+          runId,
+          status: "completed",
+          outputPath: outputDir,
+          screenshots,
+        });
+
+        res.status(200).json({ message: "Execution completed", screenshots });
       }
     );
   } catch (err) {
     console.error("File handling error:", err.message);
-    res.status(500).json({
-      error: "Internal server error. Could not handle the script file.",
-    });
+    res.status(500).json({ error: "Internal server error" });
   }
 }
