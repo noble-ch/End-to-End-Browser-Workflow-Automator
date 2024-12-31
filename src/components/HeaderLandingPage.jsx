@@ -6,52 +6,50 @@ import Link from "next/link";
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isAuthenticated = false; 
+  const isAuthenticated = false; // Replace with actual authentication logic
+
+  const linkClasses = "text-gray-700 hover:text-primary transition font-semibold";
 
   return (
-    <header className="bg-transparent top-0 py-4 px-8 absolute w-full z-50">
+    <header className="bg-white border-b border-gray-200 shadow-md fixed top-0 left-0 w-full py-4 px-8 z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-primary">
+        <Link href="/" className="text-2xl font-extrabold text-primary">
           MyLogo
         </Link>
+
         {/* Navigation Links */}
-        <div className="flex font-bold items-center space-x-16">
-          <nav className="hidden  md:flex space-x-16">
-            <Link
-              href="/features"
-              className="text-gray-700 hover:text-primary transition"
-            >
+        <div className="flex items-center space-x-12">
+          <nav className="hidden md:flex space-x-8">
+            <Link href="/features" className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}>
               Features
             </Link>
-            <Link
-              href="/pricing"
-              className="text-gray-700 hover:text-primary transition"
-            >
+            <Link href="/pricing" className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}>
               Pricing
             </Link>
-            <Link
-              href="/about"
-              className="text-gray-700 hover:text-primary transition"
-            >
+            <Link href="/about" className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}>
               About
             </Link>
           </nav>
+
           {/* User Actions */}
           {isAuthenticated ? (
             <div className="relative">
-              <button
-                className="flex items-center text-gray-700"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              {/* Profile Button */}
+              <Button
+                className="flex items-center text-gray-700 border border-gray-300 px-4 py-2 rounded-md shadow-sm hover:bg-gray-100"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
               >
-                <span className="mr-2"></span> 
-                <span>Profile</span>
-              </button>
+                <span className="mr-2"></span> {/* Placeholder for profile icon */}
+                Profile
+              </Button>
+
+              {/* Profile Menu */}
               {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                   <Link
                     href="/profile"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-t-md"
                   >
                     My Profile
                   </Link>
@@ -62,8 +60,11 @@ export function Header() {
                     Settings
                   </Link>
                   <button
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    onClick={() => alert("Logged out")}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-b-md"
+                    onClick={() => {
+                      alert("Logged out");
+                      setIsMenuOpen(false); // Close the menu on logout
+                    }}
                   >
                     Logout
                   </button>
@@ -71,20 +72,21 @@ export function Header() {
               )}
             </div>
           ) : (
-            <>
+            // Authentication Links
+            <div className="flex space-x-4">
               <Link
                 href="/auth/signin"
-                className="text-gray-700 hover:text-primary transition"
+                className={`${linkClasses} border border-gray-300 px-4 py-2 rounded-md shadow-sm hover:bg-gray-100`}
               >
-                Sign in
+                Sign In
               </Link>
               <Link
                 href="/auth/signup"
-                className="text-gray-700 hover:text-primary transition"
+                className="text-white bg-primary border border-primary px-4 py-2 rounded-md shadow-sm hover:bg-primary-dark"
               >
                 Sign Up
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>
