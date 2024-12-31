@@ -1,6 +1,5 @@
-import connectToDatabase from "@/lib/mongodb"; // MongoDB connection
-import GeminiResponse from "@/models/GeminiResponse"; // Import your model
-import Description from "@/models/Description"; 
+import connectToDatabase from "@/lib/mongodb";
+import Description from "@/models/Description";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -8,24 +7,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Connect to the database
-    await connectToDatabase();
+    const { id } = req.query; // Use `id` to match the React component's fetch call
 
-    // Fetch all records from the database
-    const records = await Description.find({}); // No user-based filtering
-    // console.log("Fetched records:", records); // Log the records for debugging
-
-    if (!records || records.length === 0) {
-      return res.status(404).json({ error: "No records found" });
+    if (!id) {
+      return res.status(400).json({ error: "id is required" });
     }
 
-    // Send the records as a response
+    await connectToDatabase();
+
+    // Fetch the description record
+    const descriptionRecord = await Description.findOne({ recordId: id });
+// console.log("description", descriptionRecord)
+    if (!descriptionRecord) {
+      return res.status(404).json({ error: "No description found for the given id" });
+    }
+
     res.status(200).json({
-      message: "Records fetched successfully",
-      data: records,
+      message: "Description fetched successfully",
+      data: {
+        generatedDescription: descriptionRecord.generatedDescription,
+        createdAt: descriptionRecord.createdAt,
+        updatedAt: descriptionRecord.updatedAt,
+      },
     });
   } catch (error) {
-    console.error("Error fetching records:", error.message);
+    console.error("Error in GET handler:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

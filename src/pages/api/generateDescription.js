@@ -1,7 +1,7 @@
 //api/generateDescription.js
 import fs from 'fs/promises';
 
-export async function generateDescription({ fileData }) {
+export async function generateDescription({ fileContent }) {
   try {
     // Prepare request payload for Gemini API
     const jsonData = {
@@ -11,7 +11,7 @@ export async function generateDescription({ fileData }) {
             {
               text:`Here’s a step-by-step breakdown of the Puppeteer script. We’ll go through what each part does in simple terms. The script looks like this:
 
-              ${fileData}
+              ${fileContent}
               
               Please explain it in the following way:
               
