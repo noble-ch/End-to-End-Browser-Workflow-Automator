@@ -1,39 +1,63 @@
 import mongoose from "mongoose";
 
-// Define the Output Schema
-const OutputSchema = new mongoose.Schema(
+// Define the ExecutionOutput Schema
+const ExecutionOutputSchema = new mongoose.Schema(
   {
     recordId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Record",
+      ref: "Record", // Reference to the parent Record
       required: true,
     },
-    script: {
+    scriptId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GeneratedScript", // Reference to the script
+      required: true,
+    },
+    runCount: {
+      type: Number,
+      default: 0,
+    },
+    outputPath: {
+      type: String, // Path to output files
+      required: true,
+    },
+    runId: {
       type: String,
       required: true,
     },
-    output: {
-      type: String,
-    },
-    imagePaths: {
-      type: [String],
+    screenshots: [
+      {
+        path: {
+          type: String, // Path to each screenshot
+          required: true,
+        },
+        timestamp: {
+          type: Date, // Time the screenshot was taken
+          default: Date.now,
+        },
+      },
+    ],
+    logs: {
+      type: [String], // Array of log messages
       default: [],
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    status: {
+      type: String,
+      enum: ["pending", "running", "completed", "failed"],
+      default: "pending",
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
+    error: {
+      type: String, // Error message if the execution fails
+      default: null,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically adds createdAt and updatedAt fields
   }
 );
 
-// Create the Output model
-const Output = mongoose.models.Output || mongoose.model("Output", OutputSchema);
+const ExecutionOutput =
+  mongoose.models.ExecutionOutput ||
+  mongoose.model("ExecutionOutput", ExecutionOutputSchema);
 
-export default Output;
+export default ExecutionOutput;
