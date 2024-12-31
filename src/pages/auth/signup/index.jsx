@@ -127,7 +127,7 @@ export default function RegisterPage() {
                 className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-500"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
+                {showPassword ? "🙈" : "🐵"}
               </span>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function RegisterPage() {
                 className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-500"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
+                {showPassword ? "🙈" : "🐵"}
               </span>
             </div>
           </div>

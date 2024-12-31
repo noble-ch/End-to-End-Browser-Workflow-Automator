@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import DescriptionHandler from "@/components/DescriptionHandler";
+import DescriptionDisplayer from "@/components/DescriptionDisplayer";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -210,7 +210,7 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                <DescriptionHandler />
+                <DescriptionDisplayer id={ id } />
               </p>
             </CardDescription>
           </CardContent>
