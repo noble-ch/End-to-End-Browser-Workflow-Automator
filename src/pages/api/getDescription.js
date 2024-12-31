@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     // Fetch the description record
     const descriptionRecord = await Description.findOne({ recordId: id });
-console.log("description", descriptionRecord)
+// console.log("description", descriptionRecord)
     if (!descriptionRecord) {
       return res.status(404).json({ error: "No description found for the given id" });
     }
