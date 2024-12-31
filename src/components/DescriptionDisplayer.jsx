@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Edit } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 function DescriptionDisplayer({ id }) {
   const [record, setRecord] = useState(null); // State to store the record
   const [error, setError] = useState(null);
   const [updatedDescription, setUpdatedDescription] = useState([]); // To store updated lines of description
   const [isEditing, setIsEditing] = useState(false); // State to toggle editing mode
-
-  console.log("id", id);
 
   useEffect(() => {
     if (!id) return;
@@ -17,10 +23,8 @@ function DescriptionDisplayer({ id }) {
       try {
         const res = await fetch(`/api/getDescription?id=${id}`); // Fetch record using `id`
         const data = await res.json();
-        console.log("data", data);
         if (res.ok) {
           setRecord(data.data); // Set the fetched record
-          // Initialize with fetched description, split by newline and trim unnecessary spaces
           setUpdatedDescription(
             data.data.generatedDescription
               .split("\n")
@@ -43,20 +47,17 @@ function DescriptionDisplayer({ id }) {
   }
 
   const handleSubmit = async () => {
-    console.log("Record ID:", id);
-    console.log("record", record); // Log the record's ID to check
     if (!record) {
       alert("Record ID is missing.");
       return;
     }
-    console.log("update", updatedDescription);
     try {
       const res = await fetch("/api/updatedDescription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: id, // Send the record's id
-          updatedDescription, // Send the updated description
+          id: id,
+          updatedDescription,
         }),
       });
 
@@ -93,112 +94,110 @@ function DescriptionDisplayer({ id }) {
 
   return (
     <div style={{ position: "relative", padding: "1rem" }}>
-      {record ? (
-        <div>
-          {/* Show the note only if not in editing mode */}
-          {isEditing && (
-            <p style={{ marginBottom: "1rem", color: "#555" }}>
-              <strong>Note:</strong> You can edit the text in each textarea
-              directly. Use the "+" button to add a new line or the "-" button to
-              delete an existing line.
-            </p>
-          )}
-          <div>
-            <strong>Generated Description:</strong>
-            {updatedDescription.map((line, index) => (
-              <div key={index} style={{ marginBottom: "1rem" }}>
-                {isEditing ? (
-                  // Show textareas with "+" and "-" buttons in editing mode
-                  <div>
-                    <Textarea
-                      value={line}
-                      onChange={(e) => handleDescriptionChange(e, index)} // Update the description on change
-                      cols={100} // Adjust columns based on your preference
-                      rows={3} // Adjust rows based on your preference
-                      style={{
-                        width: "100%", // Ensure Textarea is full width
-                        boxSizing: "border-box",
-                      }}
-                    />
-                    <div
-                      style={{
-                        marginTop: "0.5rem",
-                        display: "flex",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <Button
-                        type="button"
-                        onClick={() => handleAddTextarea(index)}
-                        style={{
-                          width: "30px", // Adjust width
-                          height: "30px", // Adjust height
-                          padding: "0", // Remove additional padding
-                          fontSize: "16px", // Adjust font size for the icon
-                        }}
-                      >
-                        +
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => handleRemoveTextarea(index)}
-                        variant="destructive"
-                        style={{
-                          width: "30px", // Adjust width
-                          height: "30px", // Adjust height
-                          padding: "0", // Remove additional padding
-                          fontSize: "16px", // Adjust font size for the icon
-                        }}
-                      >
-                        -
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  // Show updated description text when not in editing mode
-                  <div>{line}</div>
-                )}
-              </div>
-            ))}
-          </div>
-          <p>
-            <strong>Created At:</strong>{" "}
-            {new Date(record.createdAt).toLocaleString()}
-          </p>
-          <p>
-            <strong>Updated At:</strong>{" "}
-            {new Date(record.updatedAt).toLocaleString()}
-          </p>
-          <br/>
-          {/* Show edit button when not in editing mode */}
-          {!isEditing && (
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <Button
-                onClick={() => setIsEditing(true)} // Enable editing mode
-              >
-                Edit
-              </Button>
-            </div>
-          )}
-          {isEditing && (
-            <Button
-              style={{
-                position: "absolute",
-                right: "0", // Align to the right
-                bottom: "1rem", // Add spacing from the bottom
-              }}
-              type="button"
-              onClick={handleSubmit}
-            >
-              Submit
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div>Loading...</div> // Show a loading state while fetching
+      {!isEditing && (
+        <p style={{ marginBottom: "1rem", color: "#555" }}>
+          <strong>Note:</strong> You can edit the text in each textarea
+          directly. Use the "+" button to add a new line or the "-" button to
+          delete an existing line.
+        </p>
       )}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between">
+            <CardTitle>Generated Description:</CardTitle>
+            {!isEditing && (
+              <Button onClick={() => setIsEditing(true)}>
+                <Edit />
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {record ? (
+            <>
+              {updatedDescription.map((line, index) => (
+                <div key={index} style={{ marginBottom: "1rem" }}>
+                  {isEditing ? (
+                    <div>
+                      <Textarea
+                        value={line}
+                        onChange={(e) => handleDescriptionChange(e, index)}
+                        cols={100}
+                        rows={3}
+                        style={{
+                          width: "100%",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                      <div
+                        style={{
+                          marginTop: "0.5rem",
+                          display: "flex",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <Button
+                          type="button"
+                          onClick={() => handleAddTextarea(index)}
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            padding: "0",
+                            fontSize: "16px",
+                          }}
+                        >
+                          +
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => handleRemoveTextarea(index)}
+                          variant="destructive"
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            padding: "0",
+                            fontSize: "16px",
+                          }}
+                        >
+                          -
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>{line}</div>
+                  )}
+                </div>
+              ))}
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(record.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Updated At:</strong>{" "}
+                {new Date(record.updatedAt).toLocaleString()}
+              </p>
+              {isEditing && (
+                <Button
+                  style={{
+                    position: "absolute",
+                    right: "0",
+                    bottom: "1rem",
+                  }}
+                  type="button"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
+              )}
+            </>
+          ) : (
+            <div>Loading...</div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 export default DescriptionDisplayer;
+
