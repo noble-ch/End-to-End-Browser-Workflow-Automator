@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,19 +16,18 @@ import { useRouter } from "next/router";
 
 export default function TaskFormDialog() {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState(""); // for user input description
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
-  const [generatedDescription, setGeneratedDescription] = useState(""); // for generated description (not displayed)
+  const [generatedDescription, setGeneratedDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); 
-  const router = useRouter(); 
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
   const handleGenerateDescription = async (recordId) => {
-    console.log("rdid", recordId);
     try {
       const response = await fetch("/api/handler", {
         method: "POST",
@@ -33,10 +40,11 @@ export default function TaskFormDialog() {
         throw new Error(errorData.error || "Failed to submit the task.");
       }
 
-      const result = await response.json(); 
+      const result = await response.json();
       if (result) {
         router.push(`/records/${recordId}`);
-      } 
+      }
+      setIsSubmitting(false);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -49,7 +57,7 @@ export default function TaskFormDialog() {
     }
 
     setIsSubmitting(true);
-    setErrorMessage(""); 
+    setErrorMessage("");
 
     const token = localStorage.getItem("accessToken");
 
@@ -61,7 +69,7 @@ export default function TaskFormDialog() {
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("description", description); // Use the user input description, not the generated one
+    formData.append("description", description);
     formData.append("file", file);
 
     try {
@@ -82,8 +90,7 @@ export default function TaskFormDialog() {
       const recordId = result.data._id;
 
       if (recordId) {
-       handleGenerateDescription(recordId);
-       console.log("recordid", recordId)
+        handleGenerateDescription(recordId);
       } else {
         setErrorMessage("Failed to retrieve the record ID.");
       }
@@ -92,9 +99,11 @@ export default function TaskFormDialog() {
       setDescription("");
       setFile(null);
     } catch (error) {
-      setErrorMessage(error.message || "Error submitting the task. Please try again.");
+      setErrorMessage(
+        error.message || "Error submitting the task. Please try again."
+      );
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(true);
     }
   };
 
@@ -114,7 +123,9 @@ export default function TaskFormDialog() {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">Title</Label>
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
             <Input
               id="title"
               placeholder="Task title"
@@ -124,7 +135,9 @@ export default function TaskFormDialog() {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">Description</Label>
+            <Label htmlFor="description" className="text-right">
+              Description
+            </Label>
             <Textarea
               id="description"
               placeholder="Task description"
@@ -134,7 +147,9 @@ export default function TaskFormDialog() {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="file" className="text-right">Upload File</Label>
+            <Label htmlFor="file" className="text-right">
+              Upload File
+            </Label>
             <Input
               id="file"
               type="file"
@@ -158,4 +173,3 @@ export default function TaskFormDialog() {
     </Dialog>
   );
 }
-

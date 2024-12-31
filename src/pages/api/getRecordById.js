@@ -15,7 +15,6 @@ export default async function handler(req, res) {
 
     // Fetch the record by its id from the GeminiResponse collection
     const record = await GeminiResponse.findById(id);
-    console.log(record);
 
     if (!record) {
       return res.status(404).json({ error: "Record not found" });

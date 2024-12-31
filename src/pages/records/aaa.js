@@ -1,3 +1,4 @@
+//records
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,14 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import DescriptionDisplayer from "@/components/DescriptionDisplayer";
+import DescriptionHandler from "@/components/DescriptionHandler";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [aIGeneratedCode, setAIGeneratedCode] = useState(null);
+  const [generatedCode, setGeneratedCode] = useState(null);
+  const [executionResult, setExecutionResult] = useState(null);
   const [geminiResponseData, setGeminiResponseData] = useState(null);
   const router = useRouter();
   const { id } = router.query;
@@ -41,35 +43,33 @@ function RecordDetail() {
 
     fetchRecord();
   }, [id]);
-
-  useEffect(() => {
-    // Automatically run the AI code generation after the record is fetched
-    if (record && record.file) {
-      getAIGeneratedCode();
-    }
-  }, [record]); // This effect will run whenever `record` is updated
-
-  const getAIGeneratedCode = async () => {
+  const handleGenerateAndRunPuppeteer = async () => {
     if (!record || !record.file) {
       setError("No file available for processing.");
       return;
     }
+
     setLoading(true);
     setError(null);
+    setExecutionResult(null);
     setGeminiResponseData(null);
     try {
-      const fileContent = record.file.content;
+      // Step 1: Extract the JavaScript code from the file content
+      const fileContent = record.file.content; // Ensure 'content' has the JS code
 
       if (!fileContent) {
         setError("File content is missing.");
         return;
       }
+
+      // Step 2: Send the file content (JavaScript code) to the Gemini API to generate Puppeteer code
       const geminiResponse = await fetch("/api/geminicode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           description: fileContent,
           recordId: id,
+          record: id,
         }),
       });
 
@@ -78,11 +78,12 @@ function RecordDetail() {
       }
 
       const geminiData = await geminiResponse.json();
+      console.log("Gemini Response:", geminiData);
       const puppeteerScript =
         geminiData?.script || "No Puppeteer script found.";
 
-      setGeminiResponseData(geminiData);
-      setAIGeneratedCode(puppeteerScript);
+      setGeminiResponseData(geminiData); // Save Gemini response for displayuy
+      setGeneratedCode(puppeteerScript); // Save generated Puppeteer code
     } catch (err) {
       setError(err.message);
     } finally {
@@ -90,20 +91,22 @@ function RecordDetail() {
     }
   };
 
-  const handleRunAIGeneratedCode = async () => {
-    if (!aIGeneratedCode) {
+  const handleRunPuppeteer = async () => {
+    if (!generatedCode) {
       setError("No Puppeteer code to run.");
       return;
     }
 
     setLoading(true);
+    setExecutionResult(null);
 
     try {
+      // Step 3: Automatically execute the generated Puppeteer code
       const execResponse = await fetch("/api/executePuppeteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          script: aIGeneratedCode,
+          script: generatedCode,
           scriptId: geminiResponseData.id,
           recordId: id,
         }),
@@ -114,6 +117,7 @@ function RecordDetail() {
       }
 
       const execResult = await execResponse.json();
+      setExecutionResult(execResult.output);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -141,7 +145,7 @@ function RecordDetail() {
         </Link>
       </div>
 
-      <Card>
+      <Card className="">
         <CardHeader>
           <CardTitle>
             <h1 className="text-3xl font-semibold text-gray-800">
@@ -151,7 +155,7 @@ function RecordDetail() {
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 ">
         {/* Left Column - Card for Details */}
         <Card>
           <CardHeader>
@@ -203,19 +207,29 @@ function RecordDetail() {
         {/* Right Column - Card for Generated Description */}
         <Card>
           <CardHeader>
+            <CardTitle className="text-xl font-semibold">
+              Generated Description
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                <DescriptionDisplayer id={ id } />
+                <DescriptionHandler />
               </p>
             </CardDescription>
           </CardContent>
         </Card>
       </div>
 
+      {/* Button to generate and run Puppeteer code */}
+      <div className="my-4">
+        <Button onClick={handleGenerateAndRunPuppeteer} disabled={loading}>
+          {loading ? "Processing..." : "Generate Puppeteer Code"}
+        </Button>
+      </div>
+
       {/* Display generated Puppeteer code */}
-      {/* {aIGeneratedCode && (
+      {generatedCode && (
         <div>
           <h2 className="text-xl font-semibold">Generated Puppeteer Code</h2>
           <pre
@@ -227,23 +241,29 @@ function RecordDetail() {
               wordWrap: "break-word",
             }}
           >
-            {aIGeneratedCode}
+            {generatedCode}
+          </pre>
+          <Button onClick={handleRunPuppeteer} disabled={loading}>
+            {loading ? "Running..." : "Run Puppeteer"}
+          </Button>
+        </div>
+      )}
+
+      {/* Display execution result */}
+      {executionResult && (
+        <div>
+          <h2 className="text-xl font-semibold">Execution Result</h2>
+          <pre
+            style={{
+              backgroundColor: "#f4f4f4",
+              padding: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            {executionResult}
           </pre>
         </div>
-      )} */}
-
-      {/* Button to show output results */}
-      <div className="my-4">
-        <Link href={`${id}/results/`}>
-          <Button variant="outline" className="flex items-center">
-            Show Output Results
-          </Button>
-        </Link>
-      </div>
-
-      <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
-        {loading ? "Running..." : "Run Puppeteer"}
-      </Button>
+      )}
     </div>
   );
 }
