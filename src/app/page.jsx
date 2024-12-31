@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Header } from "@/components/HeaderLandingPage";
-import image1 from '../../output/6772c95ad9ba7b5b4f969b94/step4_email.png';
-import image2 from '../../output/6772c95ad9ba7b5b4f969b94/step5_password.png';
-import image3 from '../../output/6772c95ad9ba7b5b4f969b94/step6_password_click.png';
-import image4 from '../../output/6772c95ad9ba7b5b4f969b94/step7_keyboard_down_control.png'; // Ensure this is the correct image path
+import image1 from '../../public/actionRecord.png';
+import image2 from '../../public/stepAction.png';
+import image3 from '../../public/scriptGeneration.png';
+import image4 from '../../public/run.jpg'; // Ensure this is the correct image path
 import image5 from "../../public/rome_office.jpg";
 import image6 from "../../public/workspace.jpg";
 import image7 from "../../public/workspace2.jpg";
@@ -78,29 +78,40 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto text-center">
-          <h2 className="text-2xl text-gray-500 mb-8">Our Key Features</h2>
-          <h3 className="text-3xl font-bold text-gray-800 mb-12">Transform Your Workflow with Automation</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
-            {serviceImages.map((image, index) => (
-              <div key={index} className="p-6 bg-white shadow-lg rounded-md transform transition-all duration-300 hover:scale-105">
-                <Image src={image.src} alt={image.alt} width={180} height={64} className="mx-auto mb-4" />
-                <h4 className="text-lg font-semibold text-gray-800">{image.text}</h4>
-                <p className="text-sm text-gray-600">
-                  {index === 0 ? "Record your browser actions effortlessly and convert them into structured data with ease."
-                  : index === 1 
-                  ? "Generate detailed step-by-step descriptions of your recorded actions using AI-powered processing."
-                  : index === 2 
-                  ? "Automatically generate Puppeteer scripts from your recorded actions for seamless automation."
-                  : "Run your generated scripts in a headless environment and analyze their performance with real-time feedback."}
-                </p>
-              </div>
-            ))}
+    {/* Services Section */}
+<section className="py-16 bg-gray-50">
+  <div className="container mx-auto text-center">
+    <h2 className="text-2xl text-gray-500 mb-8">Our Key Features</h2>
+    <h3 className="text-3xl font-bold text-gray-800 mb-12">Transform Your Workflow with Automation</h3>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+      {serviceImages.map((image, index) => (
+        <div key={index} className="p-6 bg-white shadow-lg rounded-md transform transition-all duration-300 hover:scale-105">
+          <div className="w-full h-32 mb-4 flex justify-center items-center">
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={180} // Equal width
+              height={180} // Equal height
+              className="object-contain" // Ensures the image maintains its aspect ratio within the container
+            />
           </div>
+          <h4 className="text-lg font-semibold text-gray-800">{image.text}</h4>
+          <p className="text-sm text-gray-600">
+            {index === 0
+              ? "Record your browser actions effortlessly and convert them into structured data with ease."
+              : index === 1
+              ? "Generate detailed step-by-step descriptions of your recorded actions using AI-powered processing."
+              : index === 2
+              ? "Automatically generate Puppeteer scripts from your recorded actions for seamless automation."
+              : "Run your generated scripts in a headless environment and analyze their performance with real-time feedback."
+            }
+          </p>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
 
      {/* Top Destinations Section */}
 <section className="bg-gray-100 py-16">
