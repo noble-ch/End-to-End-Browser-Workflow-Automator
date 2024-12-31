@@ -4,13 +4,11 @@ import mongoose from "mongoose";
 const ExecutionOutputSchema = new mongoose.Schema(
   {
     recordId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Record", // Reference to the parent Record
+      type: String,
       required: true,
     },
     scriptId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "GeneratedScript", // Reference to the script
+      type: String, 
       required: true,
     },
     runCount: {

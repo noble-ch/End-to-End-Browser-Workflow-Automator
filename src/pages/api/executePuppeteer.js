@@ -15,7 +15,10 @@ export default async function handler(req, res) {
   }
 
   const runId = Date.now(); // Unique identifier for this execution
-  const outputDir = path.join(process.cwd(), `output/${recordId}/${runId}/`);
+  const outputDir = path.join(
+    process.cwd(),
+    `public/output/${recordId}/${runId}/`
+  );
   fs.mkdirSync(outputDir, { recursive: true }); // Ensure output directory exists
 
   // Replace placeholders for `recordId`, `runId`, and `outputDir` in the script
@@ -61,7 +64,7 @@ export default async function handler(req, res) {
           .readdirSync(outputDir)
           .filter((file) => file.endsWith(".png"))
           .map((file) => ({
-            path: path.join(outputDir, file),
+            path: path.join("/output", recordId, runId.toString(), file), // Save relative path
             timestamp: new Date(),
           }));
 
@@ -71,7 +74,7 @@ export default async function handler(req, res) {
           scriptId,
           runId,
           status: "completed",
-          outputPath: outputDir,
+          outputPath: `/output/${recordId}/${runId}`,
           screenshots,
         });
 

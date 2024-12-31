@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import DescriptionDisplayer from "@/components/DescriptionDisplayer";
+import { Atom } from "react-loading-indicators";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -18,6 +19,7 @@ function RecordDetail() {
   const [loading, setLoading] = useState(false);
   const [aIGeneratedCode, setAIGeneratedCode] = useState(null);
   const [geminiResponseData, setGeminiResponseData] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState(""); // New state for loading message
   const router = useRouter();
   const { id } = router.query;
 
@@ -57,6 +59,10 @@ function RecordDetail() {
     setLoading(true);
     setError(null);
     setGeminiResponseData(null);
+
+    // Set initial loading message
+    setLoadingMessage("Please wait while our AI works its magic...");
+
     try {
       const fileContent = record.file.content;
 
@@ -121,6 +127,28 @@ function RecordDetail() {
     }
   };
 
+  // Array of loading messages
+  const loadingMessages = [
+    "Please wait while our AI works its magic...",
+    "Almost done... just a few more seconds!",
+    "Hang tight, we're processing the data for you.",
+    "AI is doing its thing, check back shortly!",
+    "Almost there... your results are on the way!",
+  ];
+
+  useEffect(() => {
+    let messageInterval;
+    if (loading) {
+      let currentIndex = 0;
+      messageInterval = setInterval(() => {
+        setLoadingMessage(loadingMessages[currentIndex]);
+        currentIndex = (currentIndex + 1) % loadingMessages.length;
+      }, 3000); // Change message every 3 seconds
+    }
+
+    return () => clearInterval(messageInterval); // Clean up the interval on unmount
+  }, [loading]);
+
   if (error) {
     return <p style={{ color: "red" }}>{error}</p>;
   }
@@ -142,16 +170,43 @@ function RecordDetail() {
       </div>
 
       <Card>
-        <CardHeader>
+        <div className="flex justify-between items-center">
           <CardTitle>
-            <h1 className="text-3xl font-semibold text-gray-800">
+            <h1 className="text-3xl mx-6 font-semibold text-gray-800">
               {record.title}
             </h1>
           </CardTitle>
-        </CardHeader>
+          <div className="my-4 flex space-x-2">
+            <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
+              Run Puppeteer
+            </Button>
+            <Link href={`${id}/results/`}>
+              <Button variant="outline" className="flex items-center">
+                Show Output Results
+              </Button>
+            </Link>
+          </div>
+        </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2">
+      {/* Centered Loading Spinner, Background Blur, and Changing Text */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center flex-col">
+          <Atom
+            color={["#33CCCC", "#33CC36", "#B8CC33", "#FCCA00"]}
+            size="small"
+          />
+          <p className="text-white mt-4 text-xl font-semibold">
+            {loadingMessage}
+          </p>
+        </div>
+      )}
+
+      <div
+        className={`grid grid-cols-1 lg:grid-cols-2 ${
+          loading ? "blur-sm" : ""
+        }`}
+      >
         {/* Left Column - Card for Details */}
         <Card>
           <CardHeader>
@@ -210,43 +265,12 @@ function RecordDetail() {
           <CardContent>
             <CardDescription>
               <p className="text-gray-700 mb-2">
-                <DescriptionDisplayer id={ id } />
+                <DescriptionDisplayer id={id} />
               </p>
             </CardDescription>
           </CardContent>
         </Card>
       </div>
-
-      {/* Display generated Puppeteer code */}
-      {/* {aIGeneratedCode && (
-        <div>
-          <h2 className="text-xl font-semibold">Generated Puppeteer Code</h2>
-          <pre
-            style={{
-              backgroundColor: "#f4f4f4",
-              padding: "10px",
-              borderRadius: "5px",
-              whiteSpace: "pre-wrap",
-              wordWrap: "break-word",
-            }}
-          >
-            {aIGeneratedCode}
-          </pre>
-        </div>
-      )} */}
-
-      {/* Button to show output results */}
-      <div className="my-4">
-        <Link href={`${id}/results/`}>
-          <Button variant="outline" className="flex items-center">
-            Show Output Results
-          </Button>
-        </Link>
-      </div>
-
-      <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
-        {loading ? "Running..." : "Run Puppeteer"}
-      </Button>
     </div>
   );
 }

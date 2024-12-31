@@ -1,4 +1,3 @@
-// pages/api/getExecutionResults.js
 import ExecutionOutput from "@/models/Output";
 
 export default async function handler(req, res) {
@@ -7,15 +6,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { recordId } = req.query;
+  // Extract recordId from query
+  const { id } = req.query;
+  const recordId = id;
+  console.log("recordId", recordId);
 
   if (!recordId) {
     return res
       .status(400)
       .json({ error: "Missing required parameter: recordId" });
   }
-
+  console.log("recordId", recordId);
   try {
+    console.log("Fetching execution results for recordId:", recordId);
+
     // Fetch all execution results for the provided recordId
     const executionResults = await ExecutionOutput.find({ recordId });
 
@@ -30,13 +34,13 @@ export default async function handler(req, res) {
       screenshots: executionResult.screenshots
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // Sort by timestamp
         .map((screenshot) => ({
-          url: `/output/${recordId}/${executionResult.runId}/${screenshot.path}`,
+          url: `${screenshot.path}`,
           timestamp: screenshot.timestamp,
         })),
     }));
 
     // Log the result data just before sending it to the client
-    console.log("Result Data being sent:", resultData);
+    console.log("Execution results fetched successfully:", resultData);
 
     res.status(200).json(resultData);
   } catch (err) {

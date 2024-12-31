@@ -32,7 +32,7 @@ export default async function handler(req, res) {
                 
                 const recordId = '123';
                 const runId = '456';
-                const outputDir = path.join(__dirname, \`output/\${recordId}/\${runId}\`);
+                const outputDir = path.join(__dirname, \`public/output/\${recordId}/\${runId}\`);
                 await fs.mkdir(outputDir, { recursive: true });
       
                 Then, given a Puppeteer script, add a screenshot at each major step, saving the screenshots to the directory '\${outputDir}/' relative to the project root. The screenshots should be named 'step1_viewport.png', 'step2_navigation.png', etc. Make sure the timeout is a 2-minute timeout for all steps. Here is the updated Puppeteer code (only the updated code, no explanation needed):\n\n${description}`,
