@@ -198,9 +198,6 @@ function RecordDetail() {
         {/* Right Column - Card for Generated Description */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-semibold">
-              Generated Description
-            </CardTitle>
           </CardHeader>
           <CardContent>
             <CardDescription>
