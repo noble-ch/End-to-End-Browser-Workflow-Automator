@@ -25,7 +25,7 @@ function RecordsList() {
           return;
         }
 
-        const res = await fetch("/api/getRecords", {
+        const res = await fetch("/api/getTasksList", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -49,7 +49,7 @@ function RecordsList() {
 
   return (
     <div>
-      {error && <p className="text-red-600 mb-6 font-medium">{error}</p>}
+      
 
       <Table className="table-auto w-full text-center rounded-lg border">
         <TableCaption>My Tasks</TableCaption>
@@ -80,8 +80,11 @@ function RecordsList() {
               </TableCell>
             </TableRow>
           ))}
+          
         </TableBody>
+        
       </Table>
+      {error && <p className="text-blue-400 my-6  text-center font-medium">{error}</p>}
     </div>
   );
 }

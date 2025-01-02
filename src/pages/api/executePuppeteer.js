@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
 import ExecutionOutput from "@/models/Output";
+import GeneratedScript from "@/models/GeneratedScript";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -21,7 +22,6 @@ export default async function handler(req, res) {
   );
   fs.mkdirSync(outputDir, { recursive: true }); // Ensure output directory exists
 
-  // Replace placeholders for `recordId`, `runId`, and `outputDir` in the script
   const sanitizedScript = script
     .replace(/```[a-zA-Z]*\n?/g, "") // Remove code block markers
     .replace(
@@ -37,52 +37,100 @@ export default async function handler(req, res) {
 
   const tempFilePath = path.join(process.cwd(), "tempPuppeteerScript.js");
 
+  let screenshots = []; // Initialize screenshots array
+  let logs = []; // Initialize logs array
+
   try {
-    // Write the sanitized script to a temporary file
     fs.writeFileSync(tempFilePath, sanitizedScript);
 
     exec(
       `node ${tempFilePath}`,
-      { timeout: 120000 }, // Set a timeout for Puppeteer tasks
+      { timeout: 60000 }, // Timeout for Puppeteer tasks
       async (error, stdout, stderr) => {
-        fs.unlinkSync(tempFilePath); // Clean up temp file after execution
+        fs.unlinkSync(tempFilePath); // Clean up temp file
 
-        if (error) {
-          console.error("Execution error:", stderr || error.message);
+        // Collect screenshots from the output directory
+        try {
+          screenshots = fs
+            .readdirSync(outputDir)
+            .filter((file) => file.endsWith(".png"))
+            .map((file) => ({
+              path: path.join("/output", recordId, runId.toString(), file), // Save relative path
+              timestamp: new Date(),
+            }));
+        } catch (fsError) {
+          console.error("Error reading screenshots:", fsError.message);
+        }
+
+        // Process logs
+        const logOutput = stdout || stderr;
+        if (logOutput) {
+          logs.push({ timestamp: new Date(), content: logOutput });
+        }
+
+        // Save logs to database regardless of success or failure
+        const status = error ? "failed" : "completed";
+        const errorMessage = error ? stderr || error.message : null;
+
+        try {
           await ExecutionOutput.create({
             recordId,
             scriptId,
             runId,
-            status: "failed",
-            error: stderr || error.message,
+            status,
+            error: errorMessage,
+            screenshots,
+            logs: JSON.stringify(logs), // Save logs as a string
           });
-          return res.status(500).json({ error: stderr || error.message });
+        } catch (dbError) {
+          console.error(
+            "Error saving execution logs to database:",
+            dbError.message
+          );
         }
 
-        // Collect screenshots from the output directory
-        const screenshots = fs
-          .readdirSync(outputDir)
-          .filter((file) => file.endsWith(".png"))
-          .map((file) => ({
-            path: path.join("/output", recordId, runId.toString(), file), // Save relative path
-            timestamp: new Date(),
-          }));
+        if (error) {
+          console.error("Execution error:", stderr || error.message);
 
-        // Save execution details to the database
-        await ExecutionOutput.create({
-          recordId,
-          scriptId,
-          runId,
-          status: "completed",
-          outputPath: `/output/${recordId}/${runId}`,
-          screenshots,
-        });
+          // Remove the script from the generated script database
+          try {
+            await GeneratedScript.deleteOne({ _id: scriptId });
+            console.log(`Script with ID ${scriptId} removed from database.`);
+          } catch (dbError) {
+            console.error(
+              "Error removing script from database:",
+              dbError.message
+            );
+          }
 
-        res.status(200).json({ message: "Execution completed", screenshots });
+          return res.status(200).json({
+            error: stderr || error.message,
+            screenshots, // Return partial screenshots in the response
+            logs, // Return logs for debugging
+          });
+        }
+
+        res
+          .status(200)
+          .json({ message: "Execution completed", screenshots, logs });
       }
     );
   } catch (err) {
     console.error("File handling error:", err.message);
+    try {
+      // Save error logs to the database
+      await ExecutionOutput.create({
+        recordId,
+        scriptId,
+        runId,
+        status: "failed",
+        error: err.message,
+        screenshots,
+        logs: JSON.stringify(logs),
+      });
+    } catch (dbError) {
+      console.error("Error saving file handling error logs:", dbError.message);
+    }
     res.status(500).json({ error: "Internal server error" });
   }
 }

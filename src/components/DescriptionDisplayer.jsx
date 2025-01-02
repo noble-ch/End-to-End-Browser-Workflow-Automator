@@ -1,7 +1,9 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
+import { Plus, Trash2, ArrowDownIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,20 +13,20 @@ import {
 } from "@/components/ui/card";
 
 function DescriptionDisplayer({ id }) {
-  const [record, setRecord] = useState(null); // State to store the record
+  const [record, setRecord] = useState(null);
   const [error, setError] = useState(null);
-  const [updatedDescription, setUpdatedDescription] = useState([]); // To store updated lines of description
-  const [isEditing, setIsEditing] = useState(false); // State to toggle editing mode
+  const [updatedDescription, setUpdatedDescription] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (!id) return;
 
     async function fetchRecord() {
       try {
-        const res = await fetch(`/api/getDescription?id=${id}`); // Fetch record using `id`
+        const res = await fetch(`/api/getDescription?id=${id}`);
         const data = await res.json();
         if (res.ok) {
-          setRecord(data.data); // Set the fetched record
+          setRecord(data.data);
           setUpdatedDescription(
             data.data.generatedDescription
               .split("\n")
@@ -40,7 +42,7 @@ function DescriptionDisplayer({ id }) {
     }
 
     fetchRecord();
-  }, [id]); // Re-run the effect when the `id` changes
+  }, [id]);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -64,7 +66,7 @@ function DescriptionDisplayer({ id }) {
       const data = await res.json();
       if (res.ok) {
         alert("Description updated successfully!");
-        setIsEditing(false); // Disable editing after successful update
+        setIsEditing(false);
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -93,73 +95,68 @@ function DescriptionDisplayer({ id }) {
   };
 
   return (
-    <div style={{ position: "relative", padding: "1rem" }}>
-      {!isEditing && (
-        <p style={{ marginBottom: "1rem", color: "#555" }}>
-          <strong>Note:</strong> You can edit the text in each textarea
-          directly. Use the "+" button to add a new line or the "-" button to
-          delete an existing line.
-        </p>
-      )}
+    <div>
       <Card>
         <CardHeader>
+          {!isEditing && (
+            <p className=" text-gray-500">
+              <strong>Note:</strong> You can edit the description in each
+              textarea directly by clicking on{" "}
+              <Edit size={16} className="inline text-gray-400" /> . <br />
+              Use the
+              <Plus size={18} className="inline text-gray-400" />
+              button to add a new line or the{" "}
+              <Trash2 size={15} className="inline text-gray-400 p-0 m-0" />{" "}
+              button to delete an existing line.
+            </p>
+          )}
           <div className="flex justify-between">
-            <CardTitle>Generated Description:</CardTitle>
+            <CardTitle className="mt-2">Generated Description:</CardTitle>
             {!isEditing && (
-              <Button onClick={() => setIsEditing(true)}>
+              <Button className="w-4 h-1/4" onClick={() => setIsEditing(true)}>
                 <Edit />
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="max-h-[340px] p-1  overflow-auto">
           {record ? (
             <>
               {updatedDescription.map((line, index) => (
-                <div key={index} style={{ marginBottom: "1rem" }}>
+                <div
+                  className="grid grid-cols-1 mb-4 text-gray-800 "
+                  key={index}
+                >
                   {isEditing ? (
-                    <div>
+                    <div className="grid grid-cols-12 mb-4">
                       <Textarea
                         value={line}
                         onChange={(e) => handleDescriptionChange(e, index)}
-                        cols={100}
-                        rows={3}
-                        style={{
-                          width: "100%",
-                          boxSizing: "border-box",
+                        rows={1}
+                        className="col-span-10 resize-none min-h-[40px] overflow-hidden p-2 border rounded shadow-sm"
+                        style={{ height: "auto" }}
+                        onInput={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = `${e.target.scrollHeight}px`;
                         }}
                       />
-                      <div
-                        style={{
-                          marginTop: "0.5rem",
-                          display: "flex",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <Button
-                          type="button"
-                          onClick={() => handleAddTextarea(index)}
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            padding: "0",
-                            fontSize: "16px",
-                          }}
-                        >
-                          +
-                        </Button>
+
+                      <div className="col-span-2 grid grid-rows-2 grid-cols-1 justify-center mb-2 mx-4 ">
                         <Button
                           type="button"
                           onClick={() => handleRemoveTextarea(index)}
-                          variant="destructive"
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            padding: "0",
-                            fontSize: "16px",
-                          }}
+                          size={16}
+                          className="bg-red-500"
                         >
-                          -
+                          <Trash2 className="inline" />
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => handleAddTextarea(index)}
+                          size={16}
+                          className=""
+                        >
+                          <Plus className=" inline" />
                         </Button>
                       </div>
                     </div>
@@ -176,28 +173,19 @@ function DescriptionDisplayer({ id }) {
                 <strong>Updated At:</strong>{" "}
                 {new Date(record.updatedAt).toLocaleString()}
               </p>
-              {isEditing && (
-                <Button
-                  style={{
-                    position: "absolute",
-                    right: "0",
-                    bottom: "1rem",
-                  }}
-                  type="button"
-                  onClick={handleSubmit}
-                >
-                  Submit
-                </Button>
-              )}
             </>
           ) : (
             <div>Loading...</div>
           )}
         </CardContent>
+        {isEditing && (
+          <Button className="flex" type="button" onClick={handleSubmit}>
+            Submit
+          </Button>
+        )}
       </Card>
     </div>
   );
 }
 
 export default DescriptionDisplayer;
-

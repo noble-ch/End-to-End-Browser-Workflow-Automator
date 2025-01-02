@@ -6,22 +6,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Extract recordId from query
   const { id } = req.query;
-  const recordId = id;
-  console.log("recordId", recordId);
-
-  if (!recordId) {
+  if (!id) {
     return res
       .status(400)
       .json({ error: "Missing required parameter: recordId" });
   }
-  console.log("recordId", recordId);
-  try {
-    console.log("Fetching execution results for recordId:", recordId);
 
-    // Fetch all execution results for the provided recordId
-    const executionResults = await ExecutionOutput.find({ recordId });
+  try {
+    console.log("Fetching execution results for recordId:", id);
+
+    const executionResults = await ExecutionOutput.find({ recordId: id });
 
     if (!executionResults || executionResults.length === 0) {
       return res
@@ -29,18 +24,25 @@ export default async function handler(req, res) {
         .json({ error: "No execution results found for the given recordId" });
     }
 
-    const resultData = executionResults.map((executionResult) => ({
-      runId: executionResult.runId,
-      screenshots: executionResult.screenshots
-        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // Sort by timestamp
-        .map((screenshot) => ({
-          url: `${screenshot.path}`,
-          timestamp: screenshot.timestamp,
-        })),
-    }));
-
-    // Log the result data just before sending it to the client
-    console.log("Execution results fetched successfully:", resultData);
+    const resultData = executionResults
+      .map((executionResult) => {
+        return {
+          runId: executionResult.runId,
+          outputPath: executionResult.outputPath,
+          screenshots:
+            executionResult.screenshots
+              .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+              .map((screenshot) => ({
+                url: `${screenshot.path}`,
+                timestamp: screenshot.timestamp,
+              })) || "no/path",
+          status: executionResult.status,
+          timestamps: executionResult.timestamps,
+          createdAt: executionResult.createdAt,
+          logs: executionResult.logs,
+        };
+      })
+      .filter(Boolean);
 
     res.status(200).json(resultData);
   } catch (err) {

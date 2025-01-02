@@ -8,7 +8,7 @@ const ExecutionOutputSchema = new mongoose.Schema(
       required: true,
     },
     scriptId: {
-      type: String, 
+      type: String,
       required: true,
     },
     runCount: {
@@ -17,7 +17,6 @@ const ExecutionOutputSchema = new mongoose.Schema(
     },
     outputPath: {
       type: String, // Path to output files
-      required: true,
     },
     runId: {
       type: String,

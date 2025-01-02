@@ -1,6 +1,6 @@
 // /api/getRecordById.js
 import connectToDatabase from "@/lib/mongodb"; // Connect to database helper
-import GeminiResponse from "@/models/GeminiResponse"; // Import the GeminiResponse model
+import Task from "@/models/Task"; // Import the Task model
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -13,8 +13,8 @@ export default async function handler(req, res) {
     // Connect to the database
     await connectToDatabase();
 
-    // Fetch the record by its id from the GeminiResponse collection
-    const record = await GeminiResponse.findById(id);
+    // Fetch the record by its id from the Task collection
+    const record = await Task.findById(id);
 
     if (!record) {
       return res.status(404).json({ error: "Record not found" });

@@ -1,5 +1,5 @@
 //api/generateDescription.js
-import fs from 'fs/promises';
+import fs from "fs/promises";
 
 export async function generateDescription({ fileContent }) {
   try {
@@ -9,23 +9,20 @@ export async function generateDescription({ fileContent }) {
         {
           parts: [
             {
-              text:`Here’s a step-by-step breakdown of the Puppeteer script. We’ll go through what each part does in simple terms. The script looks like this:
-
+              text: `Here’s a step-by-step a Puppeteer script. We’ll go through what each part does . The script looks like this:
               ${fileContent}
+              Please use the below wtiting style to show each steps as an example:
+                  1. search for example.com  \n 
+                  2. opens example.com \n 
+                  3. submits the data 
+              follow teh rules also :
+                  1. do not write the pasword directly instead write with enters required pasword
+                  2. do not write the email directly instead write with enters required email
+                  
+
               
-              Please explain it in the following way:
-              
-              1. **Start by using Puppeteer**: The script begins by using Puppeteer to control the browser.
-              2. **Open a browser**: A new browser session is started to interact with the web.
-              3. **Open a new page**: A blank page is opened within the browser for the script to work on.
-              4. **Set up the page**: The script sets things up like the page's size and how long to wait for actions to complete.
-              5. **Go to a website**: The script navigates to a specific webpage to perform actions on it.
-              6. **Do actions**: The script interacts with the page by finding buttons, filling in forms, or clicking on elements.
-              7. **Check for errors**: If everything works, a success message is shown, or if there’s an error, it is handled properly.
-              8. **Close the browser**: Once everything is done, the browser is closed.
-              
-              Keep it simple and clear so anyone can understand what’s happening in each step. Thanks!
-              `
+              Keep it do not include technical stuf like setup viewport or other things like code simple and clear so anyone can understand what’s happening in each step. do not insert introductory words or unecessary description Thanks!
+              `,
             },
           ],
         },
@@ -33,19 +30,16 @@ export async function generateDescription({ fileContent }) {
     };
 
     // Gemini API Key (ensure it's in your environment variables)
-    const apiKey = process.env.GEMINI_API_KEY;
+    const AI_SERVER = process.env.AI_SERVER;
 
     // Send request to Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(jsonData),
-      }
-    );
+    const response = await fetch(`${AI_SERVER}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(jsonData),
+    });
 
     // Handle response
     if (!response.ok) {

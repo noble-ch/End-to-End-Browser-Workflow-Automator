@@ -1,5 +1,5 @@
 import connectToDatabase from "@/lib/mongodb"; // MongoDB connection
-import GeminiResponse from "@/models/GeminiResponse"; // Import your model
+import Task from "@/models/Task"; // Import your model
 import jwt from "jsonwebtoken"; // JWT library
 
 export default async function handler(req, res) {
@@ -21,10 +21,10 @@ export default async function handler(req, res) {
     await connectToDatabase();
 
     // Fetch the records that belong to the authenticated user based on their userId
-    const records = await GeminiResponse.find({ user: decoded.userId }); // Filter by userId
+    const records = await Task.find({ user: decoded.userId }); // Filter by userId
 
     if (!records || records.length === 0) {
-      return res.status(404).json({ error: "No records found for this user" });
+      return res.status(404).json({ error: "You Haven't Published Any Task Yet" });
     }
 
     // Send the user's records as a response
