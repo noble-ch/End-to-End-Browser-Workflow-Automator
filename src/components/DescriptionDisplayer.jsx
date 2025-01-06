@@ -99,7 +99,7 @@ function DescriptionDisplayer({ id }) {
       <Card>
         <CardHeader>
           {!isEditing && (
-            <p className=" text-gray-500">
+            <p className=" text-gray-400">
               <strong>Note:</strong> You can edit the description in each
               textarea directly by clicking on{" "}
               <Edit size={16} className="inline text-gray-400" /> . <br />
@@ -119,7 +119,7 @@ function DescriptionDisplayer({ id }) {
             )}
           </div>
         </CardHeader>
-        <CardContent className="max-h-[340px] p-1  overflow-auto">
+        <CardContent className="h-[60vh] p-1  overflow-auto border border-2 rounded">
           {record ? (
             <>
               {updatedDescription.map((line, index) => (
@@ -161,7 +161,7 @@ function DescriptionDisplayer({ id }) {
                       </div>
                     </div>
                   ) : (
-                    <div>{line}</div>
+                    <CardDescription className="px-2">{line}</CardDescription>
                   )}
                 </div>
               ))}

@@ -62,7 +62,6 @@ function RecordDetail() {
     setError(null);
     setGeminiResponseData(null);
 
-    // Set initial loading message
     setLoadingMessage("Please wait while our AI works its magic...");
 
     try {
@@ -170,7 +169,19 @@ function RecordDetail() {
   }, [loading]);
 
   if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
+    return (
+      <div>
+        <div className=" flex py-8 ">
+          <Link href="/dashboard">
+            <Button variant="outline">
+              <ArrowLeft className="mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+        <p style={{ color: "red" }}>{error}</p>
+      </div>
+    );
   }
 
   if (!record) {
@@ -178,10 +189,9 @@ function RecordDetail() {
   }
 
   return (
-    <div className=" bg-gray-100 p-lg-8">
-      
+    <div className=" bg-gray-100 p-lg-2">
       {/* Back to Dashboard Button */}
-      <div className=" flex py-8 ">
+      <div className=" flex py-2 ">
         <Link href="/dashboard">
           <Button variant="outline">
             <ArrowLeft className="mr-2" />
@@ -208,8 +218,8 @@ function RecordDetail() {
         }`}
       >
         {/* Left Column - Card for Details */}
-        <div>
-          <Card>
+        <div >
+          <Card >
             <div className="flex justify-between items-center ">
               <CardTitle>
                 <h1 className="text-3xl mx-6 font-semibold text-gray-800">
@@ -225,7 +235,7 @@ function RecordDetail() {
               </div>
             </div>
           </Card>
-          <Card>
+          <Card className="h-[68vh]" >
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
@@ -266,9 +276,10 @@ function RecordDetail() {
                     </p>
                     <Button
                       onClick={handleRunAIGeneratedCode}
-                      disabled={loading}
+                      disabled={running}
+                      className={`${running ? "opacity-50" : ""}`}
                     >
-                      Run Task
+                      {running ? "Running... " : "Run Task"}
                     </Button>
                     {/* Show Progress Bar if Running */}
                     {running && (

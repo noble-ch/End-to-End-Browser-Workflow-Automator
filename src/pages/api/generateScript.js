@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       
       **Rules for execution and logging:**
       - Each major step must:
-        1. Save a screenshot to the dynamically created directory at '\${outputDir}/', named as 'step_01_task_name', 'step_02_task_name', etc.
+        1. Save a screenshot to the dynamically created directory at '\${outputDir}/', use name format as '\ step_01_task_name'\, '\ step_02_task_name\', etc. (e.g., 'step_01_navigate_to_example.png') add 0 before steps for the steps 1-9 for better consistecy.
         2. Log structured data with these fields:
            - \`timestamp\`: The time the step was executed.
            - \`stepName\`: A brief description of the step.
@@ -88,18 +88,20 @@ export default async function handler(req, res) {
           const endTime = Date.now();
           const screenshotPath = path.join(outputDir, 'step_01_navigate_to_example.png');
           await page.screenshot({ path: screenshotPath });
-      
           logs.push({
             timestamp: new Date(),
             stepName,
             performanceMetrics: { duration: endTime - startTime },
-            result: 'Navigation successful',
+            result: 'Sucess',
+            error: error.message
           });
         } catch (error) {
           logs.push({
             timestamp: new Date(),
-            stepName: 'Error in Execution',
-            error: error.message,
+            stepName:'error in navigate to example',
+            performanceMetrics: { duration: endTime - startTime },
+            result: 'Failed',
+            error: error.message
           });
         } finally {
           await browser.close();

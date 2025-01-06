@@ -40,6 +40,8 @@ export default async function handler(req, res) {
           timestamps: executionResult.timestamps,
           createdAt: executionResult.createdAt,
           logs: executionResult.logs,
+          outputPath: executionResult.outputPath || "no/path",
+
         };
       })
       .filter(Boolean);

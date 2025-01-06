@@ -1,5 +1,4 @@
-// src/pages/_app.js
-import "../styles/globals.css"; // Ensure global styles are imported
+import "../styles/globals.css";
 import MainLayout from "../components/MainLayout";
 import { useRouter } from "next/router";
 

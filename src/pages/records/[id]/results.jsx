@@ -16,25 +16,67 @@ export default function RecordResults() {
 
   useEffect(() => {
     if (!id) return;
+
     async function fetchExecutionResults() {
       setLoading(true);
       try {
         const res = await fetch(`/api/getExecutionResults?id=${id}`);
-        const data = await res.json();
+        const rawData = await res.text(); // Get raw response data
+        console.log("Raw response data:", rawData);
+
+        let data = [];
+        try {
+          data = JSON.parse(rawData); // Parse raw data into JSON
+        } catch (jsonError) {
+          console.error("Error parsing API response as JSON:", jsonError);
+          setError("Invalid API response format");
+          setLoading(false);
+          return;
+        }
 
         if (res.ok) {
-          const optimizedResults = data.map((result) => ({
-            ...result,
-            logs: JSON.parse(result.logs).map((log) => ({
-              ...log,
-              content: JSON.parse(log.content),
-            })),
-          }));
+          const optimizedResults = data.map((result) => {
+            let parsedLogs = [];
+            try {
+              parsedLogs = JSON.parse(result.logs).map((log) => {
+                let parsedContent = {};
+                try {
+                  // Check if log.content is a valid JSON string
+                  if (typeof log.content === "string") {
+                    try {
+                      parsedContent = JSON.parse(log.content);
+                    } catch (parseError) {
+                      //if its not valid json, assign the string directly.
+                      parsedContent = log.content;
+                    }
+                  } else {
+                    parsedContent = log.content;
+                  }
+                } catch (contentError) {
+                  console.error(
+                    "Error parsing log content:",
+                    contentError,
+                    log.content
+                  );
+                  parsedContent = { error: "Invalid log content" }; // Fallback
+                }
+                return { ...log, content: parsedContent };
+              });
+            } catch (logsError) {
+              console.error("Error parsing logs:", logsError, result.logs);
+              parsedLogs = [{ error: "Invalid logs structure" }]; // Fallback
+            }
+
+            return { ...result, logs: parsedLogs };
+          });
+
+          console.log("Optimized results:", optimizedResults);
           setExecutionResults(optimizedResults);
         } else {
           setError(data.error || "Failed to fetch execution results");
         }
       } catch (err) {
+        console.error("Error fetching execution results:", err);
         setError(err.message || "An error occurred");
       } finally {
         setLoading(false);
@@ -58,10 +100,21 @@ export default function RecordResults() {
   const closeModal = () => setSelectedImage(null);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error)
+    return (
+      <div>
+        {" "}
+        <div className="my-4">
+          <Link href={`/records/${id}`}>
+            <Button variant="outline">Back to Record</Button>
+          </Link>
+        </div>
+        <p style={{ color: "red" }}>{error}</p>;
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen  p-8">
       {/* Back Button */}
       <div className="my-4">
         <Link href={`/records/${id}`}>
@@ -91,7 +144,7 @@ export default function RecordResults() {
               )}
               Output ID: {result.runId}
               <span
-                className={`ml-40 ${
+                className={`ml-20 ${
                   result.status === "completed"
                     ? "text-green-500"
                     : result.status === "failed"
@@ -142,36 +195,53 @@ export default function RecordResults() {
                                     Performance Metrics
                                   </th>
                                   <th className="px-2 py-1 border">Result</th>
+                                  <th className="px-2 py-1 border">Error</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {log.content.map((nestedLog, nestedIndex) => (
-                                  <tr key={nestedIndex}>
-                                    <td className="px-2 py-1 border">
-                                      {new Date(
-                                        nestedLog.timestamp
-                                      ).toLocaleString()}
-                                    </td>
-                                    <td className="px-2 py-1 border">
-                                      {nestedLog.stepName || "N/A"}
-                                    </td>
-                                    <td className="px-2 py-1 border">
-                                      {nestedLog.performanceMetrics
-                                        ? Object.entries(
-                                            nestedLog.performanceMetrics
-                                          )
-                                            .map(
-                                              ([key, value]) =>
-                                                `${key}: ${value}`
+                                {Array.isArray(log.content) ? (
+                                  log.content.map((nestedLog, nestedIndex) => (
+                                    <tr key={nestedIndex}>
+                                      <td className="px-2 py-1 border">
+                                        {new Date(
+                                          nestedLog.timestamp
+                                        ).toLocaleString()}
+                                      </td>
+                                      <td className="px-2 py-1 border">
+                                        {nestedLog.stepName || "N/A"}
+                                      </td>
+                                      <td className="px-2 py-1 border">
+                                        {nestedLog.performanceMetrics
+                                          ? Object.entries(
+                                              nestedLog.performanceMetrics
                                             )
-                                            .join(", ")
-                                        : "N/A"}
-                                    </td>
-                                    <td className="px-2 py-1 border">
-                                      {nestedLog.result || "N/A"}
+                                              .map(
+                                                ([key, value]) =>
+                                                  `${key}: ${value}`
+                                              )
+                                              .join(", ")
+                                          : "N/A"}
+                                      </td>
+                                      <td className="px-2 py-1 border">
+                                        {nestedLog.result || " -  "}
+                                      </td>
+                                      <td className="px-2 py-1 border break-words whitespace-normal">
+                                        {nestedLog.error || " - "}
+                                      </td>
+                                    </tr>
+                                  ))
+                                ) : (
+                                  <tr>
+                                    <td
+                                      colSpan="5"
+                                      className="px-2 py-1 border"
+                                    >
+                                      {typeof log.content === "string"
+                                        ? log.content
+                                        : "Invalid log content format"}
                                     </td>
                                   </tr>
-                                ))}
+                                )}
                               </tbody>
                             </table>
                           </div>
@@ -241,7 +311,7 @@ export default function RecordResults() {
               onClick={closeModal}
               className="absolute top-4 right-4 text-primary shadow rounded px-2 text-2xl"
             >
-              &times;
+              ×
             </button>
           </div>
         </div>
