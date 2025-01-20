@@ -5,7 +5,7 @@ import {
   Forward,
   MoreHorizontal,
   Trash2,
-} from "";
+} from "lucide-react";
 
 import {
   DropdownMenu,

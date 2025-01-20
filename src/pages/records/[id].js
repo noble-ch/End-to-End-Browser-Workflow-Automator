@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import DescriptionDisplayer from "@/components/DescriptionDisplayer";
+import TaskScheduler from "@/components/TaskScheduler";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -240,7 +241,8 @@ function RecordDetail() {
           </Button>
         </Link>
       </div>
-
+<div><TaskScheduler aIGeneratedCode={aIGeneratedCode} recordId={id} />
+</div>
       <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
         {loading ? "Running..." : "Run Puppeteer"}
       </Button>
