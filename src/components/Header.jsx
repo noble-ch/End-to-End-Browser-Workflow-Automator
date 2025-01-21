@@ -7,7 +7,7 @@ const Header = () => {
   const isAuthenticated = useAuth();
 
   return (
-    <header className="bg-white p-2 absolute w-full">
+    <header className="bg-white p-2 w-full">
       <a
         href={isAuthenticated ? "/dashboard" : "/"}
         className="text-lg text-primary font-bold"

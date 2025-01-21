@@ -16,7 +16,7 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const { error } = await response.json();
-        throw new Error(error || "Login failed. Please try again.");
+        setError(error || "An unknown error occurred.");
       }
 
       const { accessToken, refreshToken } = await response.json();
@@ -25,11 +25,13 @@ export default function LoginPage() {
       // Store tokens in localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      
-      console.log("Access Token Stored:", localStorage.getItem("accessToken"));
-      console.log("Refresh Token Stored:", localStorage.getItem("refreshToken"));
 
-      alert("Login successful!");
+      console.log("Access Token Stored:", localStorage.getItem("accessToken"));
+      console.log(
+        "Refresh Token Stored:",
+        localStorage.getItem("refreshToken")
+      );
+
       window.location.href = "/dashboard";
     } catch (error) {
       console.error("Error during login:", error.message || error);
@@ -67,10 +69,9 @@ export default function LoginPage() {
         />
       </div>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our{" "}
-        <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </div>
   );
 }
-

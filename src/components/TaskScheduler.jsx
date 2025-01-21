@@ -1,20 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function TaskScheduler({ aIGeneratedCode, recordId }) {
-  const [scheduledTime, setScheduledTime] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
+  const [scheduledTime, setScheduledTime] = useState(""); // State to hold the scheduled time
+  const [isScheduling, setIsScheduling] = useState(false); // State to show scheduling status
+  const [recurrence, setRecurrence] = useState("once"); // State to handle recurrence selection (once, daily, weekly, monthly)
+
+  useEffect(() => {
+    if (scriptId) {
+      console.log("Script ID received in TaskScheduler:", scriptId);
+    }
+  }, [scriptId]);
 
   const handleSchedule = async () => {
-    if (!scheduledTime) {
-      setError("Please select a time to schedule.");
+    if (!scheduledTime || !scriptId) {
+      alert("Please provide a scheduled time and script ID.");
       return;
     }
 
-    setLoading(true);
-    setError(null);
-
+    setIsScheduling(true);
     try {
+      // Send the data to the API to schedule the Puppeteer job with recurrence
       const response = await fetch("/api/schedulePuppeteer", {
         method: "POST",
         headers: {
@@ -24,42 +29,53 @@ function TaskScheduler({ aIGeneratedCode, recordId }) {
           scheduledTime,
           aIGeneratedCode,
           recordId,
+          scriptId, // Include scriptId in the request body
+          recurrence, // Add recurrence field
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error scheduling task: ${response.statusText}`);
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message);
+      } else {
+        alert(result.error);
       }
-
-      // Handle success (maybe show confirmation)
-      alert("Task scheduled successfully!");
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      alert("An error occurred while scheduling the task.");
     } finally {
-      setLoading(false);
+      setIsScheduling(false);
     }
   };
 
   return (
     <div>
-      <h3 className="text-lg font-semibold">Schedule Puppeteer Execution</h3>
+      <h3>Task Scheduler</h3>
+      
+      <label htmlFor="scheduledTime">Scheduled Time: </label>
       <input
         type="datetime-local"
+        id="scheduledTime"
         value={scheduledTime}
         onChange={(e) => setScheduledTime(e.target.value)}
-        className="border p-2 mt-2"
       />
-      <button
-        onClick={handleSchedule}
-        disabled={loading}
-        className="mt-4 bg-blue-500 text-white p-2 rounded"
+      
+      <label htmlFor="recurrence">Recurrence: </label>
+      <select
+        id="recurrence"
+        value={recurrence}
+        onChange={(e) => setRecurrence(e.target.value)}
       >
-        {loading ? "Scheduling..." : "Schedule"}
+        <option value="once">Once</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+
+      <button onClick={handleSchedule} disabled={isScheduling}>
+        {isScheduling ? "Scheduling..." : "Schedule Task"}
       </button>
-      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 }
 
 export default TaskScheduler;
-

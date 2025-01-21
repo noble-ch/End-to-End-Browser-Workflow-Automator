@@ -1,30 +1,93 @@
-// utils/scheduler.js
-
 import cron from "node-cron";
-import { executePuppeteerScript } from "./puppeteerExecutor"; // Function to run Puppeteer
+import handler from "../pages/api/executePuppeteer"; // Ensure path is correct
+import mongoose from "mongoose";
+import ScheduledTask from "../models/ScheduledTask"; // Import your model
 
-export const schedulePuppeteerJob = async (scheduledTime, aIGeneratedCode, recordId) => {
-  // Convert the scheduled time to a cron expression
-  const cronExpression = getCronExpressionFromDate(new Date(scheduledTime));
-
-  // Schedule the job
-  cron.schedule(cronExpression, async () => {
-    try {
-      // Execute the Puppeteer script
-      await executePuppeteerScript(aIGeneratedCode, recordId);
-    } catch (err) {
-      console.error("Error executing Puppeteer script", err);
-    }
-  });
-};
-
-const getCronExpressionFromDate = (date) => {
-  // Create a cron expression based on the selected date
+// Convert a Date object to a cron expression
+const getCronExpressionFromDate = (date, recurrence) => {
   const minutes = date.getMinutes();
   const hours = date.getHours();
-  const day = date.getDate();
-  const month = date.getMonth() + 1; // cron uses 1-12 for months
-  const year = date.getFullYear();
+  const dayOfMonth = date.getDate();
+  const month = date.getMonth() + 1; // Cron uses 1-based months
+  const dayOfWeek = date.getDay(); // Day of the week (0 = Sunday)
 
-  return `${minutes} ${hours} ${day} ${month} *`;
+  let cronExpression;
+
+  switch (recurrence) {
+    case "daily":
+      cronExpression = `${minutes} ${hours} * * *`; // Runs daily at the specified time
+      break;
+    case "weekly":
+      cronExpression = `${minutes} ${hours} * * ${dayOfWeek}`; // Runs weekly on the same weekday
+      break;
+    case "monthly":
+      cronExpression = `${minutes} ${hours} ${dayOfMonth} * *`; // Runs monthly on the same day of the month
+      break;
+    default:
+      cronExpression = `${minutes} ${hours} ${dayOfMonth} ${month} *`; // Runs once at the specified time
+  }
+
+  return cronExpression;
+};
+
+export const schedulePuppeteerJob = async (scheduledTime, aIGeneratedCode, recordId, scriptId, recurrence) => {
+  try {
+    const cronExpression = getCronExpressionFromDate(new Date(scheduledTime), recurrence);
+    console.log("Cron Expression:", cronExpression);
+
+    // Schedule the Puppeteer job
+    cron.schedule(cronExpression, async () => {
+      console.log(`Executing Puppeteer script for recordId ${recordId} at scheduled time`);
+
+      const requestBody = {
+        recordId,
+        scriptId, // Ensuring scriptId is passed correctly
+        script: aIGeneratedCode, // AI-generated script content
+      };
+
+      // Request and response mock to trigger the handler
+      const req = { body: requestBody, method: "POST" };
+      const res = {
+        status: (statusCode) => ({
+          json: (data) => {
+            console.log("API Response:", statusCode, data);
+          },
+        }),
+      };
+
+      // Trigger Puppeteer execution
+      await handler(req, res);
+
+      // After successful execution, save to database
+      await saveTaskToDatabase(recordId, scriptId, aIGeneratedCode, scheduledTime);
+
+    });
+  } catch (err) {
+    console.error("Error scheduling Puppeteer job", err);
+  }
+};
+
+// Function to save the task to MongoDB after execution
+const saveTaskToDatabase = async (recordId, scriptId, aIGeneratedCode, scheduledTime) => {
+  try {
+    // Ensure database connection
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGODB_URI);
+    }
+
+    // Create a new task document
+    const newTask = new ScheduledTask({
+      recordId,
+      scriptId,
+      script: aIGeneratedCode,
+      scheduledTime,
+      status: "completed", // Assuming the task was completed after execution
+    });
+
+    // Save the task
+    await newTask.save();
+    console.log("Scheduled task saved to the database.");
+  } catch (err) {
+    console.error("Error saving task to database", err);
+  }
 };

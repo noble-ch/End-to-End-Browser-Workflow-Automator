@@ -1,9 +1,8 @@
 //api/sendRecord.js
 import formidable from "formidable";
 import fs from "fs";
-import path from "path";
 import connectToDatabase from "@/lib/mongodb";
-import GeminiResponse from "@/models/GeminiResponse";
+import Task from "@/models/Task";
 import jwt from "jsonwebtoken";
 
 export const config = {
@@ -22,9 +21,9 @@ export default async function handler(req, res) {
       const [fields, files] = await form.parse(req);
 
       // Extract the necessary fields and file data
-      const title = fields.title?.[0]; // Optional chaining in case the field is missing
+      const title = fields.title?.[0];
       const description = fields.description?.[0];
-      const file = files.file?.[0]; // The uploaded file
+      const file = files.file?.[0];
 
       // Validate required fields
       if (!title || !description) {
@@ -50,37 +49,33 @@ export default async function handler(req, res) {
       if (!fileData) {
         return res.status(400).json({ error: "File is empty." });
       }
-      // Extract user info from the request headers (Assume token is passed in Authorization header)
       const token = req.headers.authorization?.split(" ")[1];
       if (!token) {
         return res
           .status(401)
           .json({ error: "Authentication token is missing." });
       }
-      // Verify the JWT token and extract user information (e.g., user ID)
       let user;
       try {
-        user = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+        user = jwt.verify(token, process.env.JWT_SECRET);
       } catch (error) {
         return res.status(401).json({ error: "Invalid or expired token." });
       }
       // Connect to the database
       await connectToDatabase();
-      // Create the response object for MongoDB, storing the JS code as a string
-      const geminiResponse = new GeminiResponse({
+
+      const task = new Task({
         title,
         description,
         file: {
-          filename: file.originalFilename, // Store the file's name
-          contentType: file.mimetype, // Store the file's MIME type
-          content: fileData, // Store the JS code as a string
+          filename: file.originalFilename,
+          contentType: file.mimetype,
+          content: fileData,
         },
-        user: user.userId, // Store the user ID in the database
+        user: user.userId,
       });
 
-      // Save the data to MongoDB
-      const savedItem = await geminiResponse.save();
-      // Respond with success
+      const savedItem = await task.save();
       res.status(200).json({
         message: "File uploaded and code extracted successfully",
         data: savedItem,

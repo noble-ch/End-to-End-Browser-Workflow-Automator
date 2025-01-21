@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const GeminiResponseSchema = new mongoose.Schema(
+const TaskSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -34,5 +34,5 @@ const GeminiResponseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.GeminiResponse ||
-  mongoose.model("GeminiResponse", GeminiResponseSchema);
+export default mongoose.models.Task ||
+  mongoose.model("Task", TaskSchema);

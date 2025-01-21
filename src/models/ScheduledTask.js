@@ -1,20 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const ScheduledTaskSchema = new mongoose.Schema({
-  scheduledTime: {
-    type: Date,
-    required: true
-  },
-  aIGeneratedCode: {
-    type: String,
-    required: true
-  },
-  recordId: {
-    type: String,
-    required: true
-  }
+  recordId: String,
+  scriptId: String,
+  script: String,
+  scheduledTime: Date,
+  status: { type: String, default: "pending" }, // Assuming default status is pending
 });
 
-const ScheduledTask = mongoose.models.ScheduledTask || mongoose.model('ScheduledTask', ScheduledTaskSchema);
-
-export default ScheduledTask;
+export default mongoose.models.ScheduledTask ||
+  mongoose.model("ScheduledTask", ScheduledTaskSchema);
