@@ -1,6 +1,8 @@
 import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
+import ExecutionOutput from "@/models/Output";
+import GeneratedScript from "@/models/GeneratedScript";
 import ExecutionOutput from "@/models/Output"; // Ensure model paths are correct
 import GeneratedScript from "@/models/GeneratedScript"; // Ensure model paths are correct
 
@@ -17,12 +19,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
-  const runId = Date.now(); // Unique identifier for each run
-  console.log(runId);
-  const outputDir = path.join(process.cwd(), `public/output/${recordId}/${runId}/`);
+  const runId = Date.now(); // Unique identifier for this execution
+  const outputDir = path.join(process.cwd(), `output/${recordId}/${runId}/`);
   fs.mkdirSync(outputDir, { recursive: true }); // Ensure output directory exists
 
-  // Sanitize script (ensure it includes the correct recordId and runId)
+  // Replace placeholders for `recordId`, `runId`, and `outputDir` in the script
   const sanitizedScript = script
     .replace(/```[a-zA-Z]*\n?/g, "") // Remove code block markers
     .replace(
@@ -41,74 +42,50 @@ export default async function handler(req, res) {
 
   const tempFilePath = path.join(process.cwd(), "tempPuppeteerScript.js");
 
-  let screenshots = [];
-  let logs = [];
-
   try {
-    // Write sanitized script to temp file
+    // Write the sanitized script to a temporary file
     fs.writeFileSync(tempFilePath, sanitizedScript);
 
-    // Execute the Puppeteer script
-    exec(`node ${tempFilePath}`, { timeout: 60000 }, async (error, stdout, stderr) => {
-      fs.unlinkSync(tempFilePath); // Clean up temp file
+    exec(
+      `node ${tempFilePath}`,
+      { timeout: 120000 }, // Set a timeout for Puppeteer tasks
+      async (error, stdout, stderr) => {
+        fs.unlinkSync(tempFilePath); // Clean up temp file after execution
 
-      // Collect screenshots
-      try {
-        screenshots = fs
+        if (error) {
+          console.error("Execution error:", stderr || error.message);
+          await ExecutionOutput.create({
+            recordId,
+            scriptId,
+            runId,
+            status: "failed",
+            error: stderr || error.message,
+          });
+          return res.status(500).json({ error: stderr || error.message });
+        }
+
+        // Collect screenshots from the output directory
+        const screenshots = fs
           .readdirSync(outputDir)
           .filter((file) => file.endsWith(".png"))
           .map((file) => ({
-            path: path.join("/output", recordId, runId.toString(), file),
+            path: path.join(outputDir, file),
             timestamp: new Date(),
           }));
-      } catch (fsError) {
-        console.error("Error reading screenshots:", fsError.message);
-      }
 
-      // Process logs (stdout or stderr)
-      const logOutput = stdout || stderr;
-      if (logOutput) {
-        logs.push({ timestamp: new Date(), content: logOutput });
-      }
-
-      const status = error ? "failed" : "completed";
-      const errorMessage = error ? stderr || error.message : null;
-
-      try {
-        // Save execution logs to the database
+        // Save execution details to the database
         await ExecutionOutput.create({
           recordId,
           scriptId,
           runId,
-          status,
-          error: errorMessage,
+          status: "completed",
+          outputPath: outputDir,
           screenshots,
-          logs: JSON.stringify(logs), // Save logs as a string
         });
-      } catch (dbError) {
-        console.error("Error saving execution logs to database:", dbError.message);
+
+        res.status(200).json({ message: "Execution completed", screenshots });
       }
-
-      // If error, remove script from database and return response
-      if (error) {
-        console.error("Execution error:", stderr || error.message);
-        try {
-          await GeneratedScript.deleteOne({ _id: scriptId });
-          console.log(`Script with ID ${scriptId} removed from database.`);
-        } catch (dbError) {
-          console.error("Error removing script from database:", dbError.message);
-        }
-
-        return res.status(200).json({
-          error: stderr || error.message,
-          screenshots, // Return partial screenshots
-          logs, // Return logs for debugging
-        });
-      }
-
-      // Return successful response with logs and screenshots
-      res.status(200).json({ message: "Execution completed", screenshots, logs });
-    });
+    );
   } catch (err) {
     console.error("File handling error:", err.message);
     try {
