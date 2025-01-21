@@ -103,9 +103,24 @@ function RecordDetail() {
       setError("No Puppeteer code to run.");
       return;
     }
-
-    setLoading(true);
-
+  
+    setRunning(true);
+    setProgress(0);
+    let progressInterval;
+    let currentProgress = 0;
+  
+    progressInterval = setInterval(() => {
+      if (currentProgress < 90) {
+        currentProgress += 1;
+        setProgress(currentProgress);
+      } else if (currentProgress === 90) {
+        setLoading(true);
+        setLoadingMessage("Compiling your result");
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 500);
+  
     try {
       const execResponse = await fetch("/api/executePuppeteer", {
         method: "POST",
@@ -120,14 +135,39 @@ function RecordDetail() {
       if (!execResponse.ok) {
         setError(`Execution error! Status: ${execResponse.status}`);
       }
-
-      const execResult = await execResponse.json();
+  
+      if (execResponse.ok) {
+        setProgress(100);
+        router.push(`/records/${id}/results`);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setRunning(false);
     }
   };
+  
+  // Array of loading messages
+  const loadingMessages = [
+    "Please wait while our AI works its magic...",
+    "Almost done... just a few more seconds!",
+    "Hang tight, we're processing the data for you.",
+    "AI is doing its thing, check back shortly!",
+    "Almost there... your results are on the way!",
+  ];
+
+  useEffect(() => {
+    let messageInterval;
+    if (loading) {
+      let currentIndex = 0;
+      messageInterval = setInterval(() => {
+        setLoadingMessage(loadingMessages[currentIndex]);
+        currentIndex = (currentIndex + 1) % loadingMessages.length;
+      }, 3000);
+    }
+
+    return () => clearInterval(messageInterval);
+  }, [loading]);
 
   if (error) {
     return (
@@ -271,45 +311,22 @@ function RecordDetail() {
         </div>
 
         {/* Right Column - Card for Generated Description */}
-        <Card>
-          <CardHeader>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              <p className="text-gray-700 mb-2">
-                <DescriptionDisplayer id={ id } />
-              </p>
-            </CardDescription>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Display generated Puppeteer code */}
-      {/* {aIGeneratedCode && (
+        <p className="text-gray-700 mb-2">
+          <DescriptionDisplayer id={id} />
+        </p>
         <div>
-          <h2 className="text-xl font-semibold">Generated Puppeteer Code</h2>
-          <pre
-            style={{
-              backgroundColor: "#f4f4f4",
-              padding: "10px",
-              borderRadius: "5px",
-              whiteSpace: "pre-wrap",
-              wordWrap: "break-word",
-            }}
-          >
-            {aIGeneratedCode}
-          </pre>
+        <TaskScheduler 
+  aIGeneratedCode={aIGeneratedCode} 
+  recordId={id} 
+  scriptId={geminiResponseData?.id}  // Pass the scriptId here
+/>
         </div>
-      )} */}
-
-      {/* Button to show output results */}
-      <div className="my-4">
-        <Link href={`${id}/results/`}>
-          <Button variant="outline" className="flex items-center">
-            Show Output Results
-          </Button>
-        </Link>
       </div>
+
+      <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
+        {loading ? "Running..." : "Run Puppeteer"}
+      </Button>
     </div>
   );
 }
