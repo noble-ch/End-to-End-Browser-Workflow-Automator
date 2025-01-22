@@ -14,6 +14,7 @@ import DescriptionDisplayer from "@/components/DescriptionDisplayer";
 import { Atom } from "react-loading-indicators";
 import { Progress } from "@/components/ui/progress";
 import TaskScheduler from "@/components/TaskScheduler";
+import EditScheduler from "@/components/EditScheduler";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -24,6 +25,7 @@ function RecordDetail() {
   const [aIGeneratedCode, setAIGeneratedCode] = useState(null);
   const [geminiResponseData, setGeminiResponseData] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [showScheduler, setShowScheduler] = useState(false); // State to control TaskScheduler visibility
   const router = useRouter();
   const { id } = router.query;
 
@@ -103,12 +105,12 @@ function RecordDetail() {
       setError("No Puppeteer code to run.");
       return;
     }
-  
+
     setRunning(true);
     setProgress(0);
     let progressInterval;
     let currentProgress = 0;
-  
+
     progressInterval = setInterval(() => {
       if (currentProgress < 90) {
         currentProgress += 1;
@@ -120,22 +122,22 @@ function RecordDetail() {
         clearInterval(progressInterval);
       }
     }, 500);
-  
+
     try {
       const execResponse = await fetch("/api/executePuppeteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           script: aIGeneratedCode,
-          scriptId: geminiResponseData.id,  // This is the script ID.
+          scriptId: geminiResponseData.id, // This is the script ID.
           recordId: id,
         }),
       });
-  
+
       if (!execResponse.ok) {
         setError(`Execution error! Status: ${execResponse.status}`);
       }
-  
+
       if (execResponse.ok) {
         setProgress(100);
         router.push(`/records/${id}/results`);
@@ -146,33 +148,15 @@ function RecordDetail() {
       setRunning(false);
     }
   };
-  
-  // Array of loading messages
-  const loadingMessages = [
-    "Please wait while our AI works its magic...",
-    "Almost done... just a few more seconds!",
-    "Hang tight, we're processing the data for you.",
-    "AI is doing its thing, check back shortly!",
-    "Almost there... your results are on the way!",
-  ];
 
-  useEffect(() => {
-    let messageInterval;
-    if (loading) {
-      let currentIndex = 0;
-      messageInterval = setInterval(() => {
-        setLoadingMessage(loadingMessages[currentIndex]);
-        currentIndex = (currentIndex + 1) % loadingMessages.length;
-      }, 3000);
-    }
-
-    return () => clearInterval(messageInterval);
-  }, [loading]);
+  const handleShowScheduler = () => {
+    setShowScheduler(true);
+  };
 
   if (error) {
     return (
       <div>
-        <div className=" flex py-8 ">
+        <div className="flex py-8">
           <Link href="/dashboard">
             <Button variant="outline">
               <ArrowLeft className="mr-2" />
@@ -190,9 +174,8 @@ function RecordDetail() {
   }
 
   return (
-    <div className=" bg-gray-100 p-lg-2">
-      {/* Back to Dashboard Button */}
-      <div className=" flex py-2 ">
+    <div className="bg-gray-100 p-lg-2">
+      <div className="flex py-2">
         <Link href="/dashboard">
           <Button variant="outline">
             <ArrowLeft className="mr-2" />
@@ -200,7 +183,7 @@ function RecordDetail() {
           </Button>
         </Link>
       </div>
-      {/* Centered Loading Spinner, Background Blur, and Changing Text */}
+
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center flex-col">
           <Atom
@@ -213,15 +196,10 @@ function RecordDetail() {
         </div>
       )}
 
-      <div
-        className={`grid grid-cols-1 lg:grid-cols-2 ${
-          loading ? "blur-sm" : ""
-        }`}
-      >
-        {/* Left Column - Card for Details */}
-        <div >
-          <Card >
-            <div className="flex justify-between items-center ">
+      <div className={`grid grid-cols-1 lg:grid-cols-2 ${loading ? "blur-sm" : ""}`}>
+        <div>
+          <Card>
+            <div className="flex justify-between items-center">
               <CardTitle>
                 <h1 className="text-3xl mx-6 font-semibold text-gray-800">
                   {record.title}
@@ -236,7 +214,8 @@ function RecordDetail() {
               </div>
             </div>
           </Card>
-          <Card className="h-[68vh]" >
+
+          <Card className="h-[68vh]">
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
@@ -282,25 +261,6 @@ function RecordDetail() {
                     >
                       {running ? "Running... " : "Run Task"}
                     </Button>
-                    {/* Show Progress Bar if Running */}
-                    {running && (
-                      <div
-                        style={{}}
-                        className="grid grid-cols-12 mt-6  rounded p-0"
-                      >
-                        <Progress
-                          value={progress}
-                          max={100}
-                          className="w-full col-span-11 my-auto"
-                        />
-                        <p
-                          style={{ fontSize: "10px" }}
-                          className="text-black font-semibold "
-                        >
-                          {`${progress}%`}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <p className="text-gray-700">No file available</p>
@@ -310,23 +270,28 @@ function RecordDetail() {
           </Card>
         </div>
 
-        {/* Right Column - Card for Generated Description */}
-
-        <p className="text-gray-700 mb-2">
-          <DescriptionDisplayer id={id} />
-        </p>
         <div>
-        <TaskScheduler 
-  aIGeneratedCode={aIGeneratedCode} 
-  recordId={id} 
-  scriptId={geminiResponseData?.id}  // Pass the scriptId here
-/>
+          <DescriptionDisplayer id={id} />
+          {!showScheduler ? (
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleShowScheduler}
+            >
+              Schedule
+            </Button>
+          ) : (
+            <TaskScheduler
+              aIGeneratedCode={aIGeneratedCode}
+              recordId={id}
+              scriptId={geminiResponseData?.id} // Pass the scriptId here
+            />
+          )}
+          <div><EditScheduler aIGeneratedCode={aIGeneratedCode}
+              recordId={id}
+              scriptId={geminiResponseData?.id}/></div>
         </div>
       </div>
-
-      <Button onClick={handleRunAIGeneratedCode} disabled={loading}>
-        {loading ? "Running..." : "Run Puppeteer"}
-      </Button>
     </div>
   );
 }

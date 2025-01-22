@@ -5,6 +5,7 @@ const ScheduledTaskSchema = new mongoose.Schema({
   scriptId: String,
   script: String,
   scheduledTime: Date,
+  recurrence: {type: String, default: "none"},
   status: { type: String, default: "pending" }, // Assuming default status is pending
 });
 
