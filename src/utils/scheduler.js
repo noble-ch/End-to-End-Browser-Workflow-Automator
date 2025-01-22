@@ -74,29 +74,36 @@ export const schedulePuppeteerJob = async (scheduledTime, aIGeneratedCode, recor
   console.log("Job scheduled:", scriptId);
 };
 
-// Function to cancel a scheduled Puppeteer job
 export const cancelPuppeteerJob = async (scriptId) => {
-  await ensureDbConnection(); // Ensure DB connection
+  await ensureDbConnection();
 
+  // Check if the job exists in memory
   const job = scheduledJobs[scriptId];
   if (job) {
-    job.stop();
-    delete scheduledJobs[scriptId];
-    console.log("Job canceled:", scriptId);
-
-    // Update the database to reflect the cancellation
-    const task = await ScheduledTask.findOne({ scriptId });
-    if (task) {
-      task.status = "canceled";
-      await task.save();
-      console.log("Task updated to canceled in database:", scriptId);
-    }
-
-    return true;
+    job.stop(); // Stop the cron job
+    delete scheduledJobs[scriptId]; // Remove from in-memory storage
+    console.log("Job canceled and removed from memory:", scriptId);
+  } else {
+    console.warn("No job found in memory for scriptId:", scriptId);
   }
 
-  return false;
+  // Delete the task from the database
+  try {
+    const result = await ScheduledTask.deleteOne({ scriptId });
+    if (result.deletedCount > 0) {
+      console.log("Task removed from database:", scriptId);
+      return true;
+    } else {
+      console.warn("Task not found in database for scriptId:", scriptId);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error removing task from database:", error);
+    throw new Error("Error removing task from database");
+  }
 };
+
+
 
 // Helper function to save the task to the database
 const saveTaskToDatabase = async (recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence) => {
@@ -142,8 +149,13 @@ export const getScheduledJob = async (scriptId) => {
     const job = scheduledJobs[scriptId];
 
     if (job) {
-      console.log("Fetched job from in-memory storage:", job);
-      return job;
+      console.log("Fetched job from in-memory storage");
+
+      // Return only serializable details (not the entire job object)
+      return {
+        scriptId,
+        status: "active", // You can add other metadata as needed
+      };
     }
 
     // If not found in-memory, fetch from the database
@@ -154,8 +166,7 @@ export const getScheduledJob = async (scriptId) => {
       return null;
     }
 
-    // Return the job from the database
-    console.log("Fetched job from database:", dbJob);
+    // Return the serialized database job details
     return {
       scriptId: dbJob.scriptId,
       scheduledTime: dbJob.scheduledTime,
@@ -166,7 +177,8 @@ export const getScheduledJob = async (scriptId) => {
     console.error("Error fetching scheduled job:", error);
     throw new Error("Error fetching scheduled job");
   }
-}
+};
+
 // Function to edit an existing Puppeteer job
 export const editPuppeteerJob = async (scriptId, scheduledTime, aIGeneratedCode, recurrence) => {
   await ensureDbConnection(); // Ensure DB connection
