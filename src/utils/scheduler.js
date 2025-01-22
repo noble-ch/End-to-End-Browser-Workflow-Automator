@@ -167,3 +167,46 @@ export const getScheduledJob = async (scriptId) => {
     throw new Error("Error fetching scheduled job");
   }
 }
+// Function to edit an existing Puppeteer job
+export const editPuppeteerJob = async (scriptId, scheduledTime, aIGeneratedCode, recurrence) => {
+  await ensureDbConnection(); // Ensure DB connection
+
+  // Cancel the existing job
+  const existingJob = scheduledJobs[scriptId];
+  if (existingJob) {
+    existingJob.stop();
+    delete scheduledJobs[scriptId];
+    console.log("Existing job canceled:", scriptId);
+  }
+
+  // Create a new cron expression based on the updated scheduledTime and recurrence
+  const cronExpression = getCronExpressionFromDate(new Date(scheduledTime), recurrence);
+
+  // Schedule a new job with updated details
+  const newJob = cron.schedule(cronExpression, async () => {
+    const req = {
+      body: { scriptId, script: aIGeneratedCode },
+      method: "POST",
+    };
+    const res = {
+      status: (statusCode) => ({
+        json: (data) => console.log("API Response:", statusCode, data),
+      }),
+    };
+
+    await handler(req, res); // Execute the Puppeteer script
+    await saveTaskToDatabase(null, scriptId, aIGeneratedCode, scheduledTime, recurrence);
+  });
+
+  // Update the in-memory scheduledJobs object
+  scheduledJobs[scriptId] = newJob;
+
+  // Update the database
+  try {
+    await saveTaskToDatabase(null, scriptId, aIGeneratedCode, scheduledTime, recurrence);
+    console.log("Job updated successfully in database:", scriptId);
+  } catch (error) {
+    console.error("Error updating task in database:", error);
+    throw new Error("Error updating task in database");
+  }
+};

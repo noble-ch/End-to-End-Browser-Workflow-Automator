@@ -1,4 +1,4 @@
-import { schedulePuppeteerJob, getScheduledJob } from "@/utils/scheduler";
+import { schedulePuppeteerJob, getScheduledJob,editPuppeteerJob } from "@/utils/scheduler";
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -47,20 +47,19 @@ export default async function handler(req, res) {
 
     case "PUT": {
       const { scheduledTime, aIGeneratedCode, scriptId, recurrence } = req.body;
-
+    
       if (!scriptId || !scheduledTime || !recurrence) {
         return res.status(400).json({ error: "Missing required fields" });
       }
-
+    
       try {
         await editPuppeteerJob(scriptId, scheduledTime, aIGeneratedCode, recurrence);
-        res.status(200).json({ message: "Task updated successfully" });
+        return res.status(200).json({ message: "Task updated successfully" });
       } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error in PUT /api/schedulePuppeteer:", err);
+        return res.status(500).json({ error: err.message });
       }
-      break;
     }
-
     default:
       res.status(405).json({ error: "Method not allowed" });
   }
