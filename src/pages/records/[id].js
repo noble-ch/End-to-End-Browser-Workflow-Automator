@@ -300,7 +300,9 @@ function RecordDetail() {
               scriptId={geminiResponseData?.id}
             />
           )}
-          {editScheduler && <EditScheduler />}
+          {editScheduler && <EditScheduler  aIGeneratedCode={aIGeneratedCode}
+              recordId={id}
+              scriptId={geminiResponseData?.id}/>}
         </div>
       </div>
     </div>
@@ -308,5 +310,4 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
-
 

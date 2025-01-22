@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
-  const [scheduledTime, setScheduledTime] = useState(""); //State to hold the scheduled time
-  const [isScheduling, setIsScheduling] = useState(false); //State to show scheduling status
-  const [recurrence, setRecurrence] = useState(""); //State to handle recurrence selection
-  const [isEditing, setIsEditing] = useState(true); //State to handle editing mode
-  const [isScheduled, setIsScheduled] = useState(false); //State to track if the task is scheduled
+  const [scheduledTime, setScheduledTime] = useState(null); // Correctly initializing as null
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [recurrence, setRecurrence] = useState(""); // Ensure default state
+  const [isEditing, setIsEditing] = useState(true);
+  const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
     if (scriptId) {
@@ -33,14 +42,14 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
           aIGeneratedCode,
           recordId,
           scriptId,
-          recurrence, // Include recurrence in the request body
+          recurrence,
         }),
       });
 
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
-        setIsScheduled(true); // Mark the task as scheduled
+        setIsScheduled(true);
       } else {
         alert(result.error);
       }
@@ -56,20 +65,20 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
       alert("No task to stop.");
       return;
     }
-  
+
     try {
       const response = await fetch("/api/stopPuppeteer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ scriptId }), // Send scriptId to stop the task
+        body: JSON.stringify({ scriptId }),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
-        setIsScheduled(false); // Change button back to "Schedule Task"
+        setIsScheduled(false);
       } else {
         alert(result.error);
       }
@@ -80,53 +89,66 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.title}>Task Scheduler</h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h3>Task Scheduler</h3>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Scheduling Section */}
+          <div style={styles.inputGroup}>
+            <Label htmlFor="scheduledTime" style={styles.label}>
+              Time:
+            </Label>
+            <DatePicker
+              selected={scheduledTime}
+              onChange={(date) => setScheduledTime(date)}
+              showTimeSelect
+              dateFormat="Pp"
+              style={styles.input}
+              disabled={!isEditing}
+            />
+          </div>
 
-      {/* Scheduling Section */}
-      <div style={styles.inputGroup}>
-        <label htmlFor="scheduledTime" style={styles.label}>
-          Time:
-        </label>
-        <DatePicker
-          selected={scheduledTime ? new Date(scheduledTime) : null}
-          onChange={(date) => setScheduledTime(date.toISOString())}
-          showTimeSelect
-          dateFormat="Pp"
-          style={styles.input}
-          disabled={!isEditing}
-        />
-      </div>
-
-      <div style={styles.inputGroup}>
-        <label htmlFor="recurrence" style={styles.label}>
-          Repeat:
-        </label>
-        <select
-          id="recurrence"
-          value={recurrence}
-          onChange={(e) => setRecurrence(e.target.value)}
-          style={styles.select}
-          disabled={!isEditing}
-        >
-          <option value="once">Once</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </div>
-
-      {/* Buttons */}
-      <div style={styles.buttonContainer}>
-        {isScheduled ? (
-          <button onClick={handleStop} style={styles.stopButton}>
-            Stop Task
-          </button>
-        ) : (
-          <button onClick={handleSchedule} style={styles.scheduleButton} disabled={isScheduling}>
-            {isScheduling ? "Scheduling..." : "Schedule Task"}
-          </button>
-        )}
-      </div>
+          <div style={styles.inputGroup}>
+            <Label htmlFor="recurrence" style={styles.label}>
+              Repeat:
+            </Label>
+            <select
+              id="recurrence"
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value)}
+              style={styles.select}
+              disabled={!isEditing}
+            >
+              <option value="" disabled>
+                Select Recurrence
+              </option>
+              <option value="once">Once</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          {/* Buttons */}
+          <div style={styles.buttonContainer}>
+            {isScheduled ? (
+              <Button onClick={handleStop} style={styles.stopButton}>
+                Stop Task
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSchedule}
+                style={styles.scheduleButton}
+                disabled={isScheduling}
+              >
+                {isScheduling ? "Scheduling..." : "Schedule Task"}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -142,11 +164,6 @@ const styles = {
     backgroundColor: "#e9ecef",
     boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
     textAlign: "center",
-  },
-  title: {
-    fontSize: "1.5em",
-    marginBottom: "20px",
-    color: "#343a40",
   },
   inputGroup: {
     marginBottom: "15px",
@@ -196,13 +213,5 @@ const styles = {
     border: "none",
     cursor: "pointer",
   },
-  editButton: {
-    padding: "10px 20px",
-    backgroundColor: "#ffc107",
-    color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-  },
 };
+

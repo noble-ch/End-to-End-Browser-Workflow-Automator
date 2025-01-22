@@ -1,21 +1,37 @@
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import "react-datepicker/dist/react-datepicker.css";
 
 function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
   const [scheduledTime, setScheduledTime] = useState(null);
   const [recurrence, setRecurrence] = useState("once");
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Fetch current job details if editing an existing schedule
   useEffect(() => {
     const fetchJobDetails = async () => {
       if (scriptId) {
-        const response = await fetch(`/api/schedulePuppeteer?scriptId=${scriptId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setScheduledTime(new Date(data.scheduledTime));
-          setRecurrence(data.recurrence);
+        try {
+          const response = await fetch(`/api/schedulePuppeteer?scriptId=${scriptId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setScheduledTime(new Date(data.scheduledTime));
+            setRecurrence(data.recurrence);
+          } else {
+            console.error("Failed to fetch job details:", await response.json());
+          }
+        } catch (error) {
+          console.error("Error fetching job details:", error);
         }
       }
     };
@@ -23,14 +39,15 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
   }, [scriptId]);
 
   const handleEditSchedule = async () => {
-    try {
-      if (!aIGeneratedCode || !recordId || !scriptId) {
-        alert("Required data is missing. Please check your input.");
-        return;
-      }
+    if (!scheduledTime || !aIGeneratedCode || !recordId || !scriptId) {
+      alert("All fields are required. Please complete the form.");
+      return;
+    }
 
+    setLoading(true);
+    try {
       const payload = {
-        scheduledTime: scheduledTime ? scheduledTime.toISOString() : null,
+        scheduledTime: scheduledTime.toISOString(),
         aIGeneratedCode,
         recordId,
         scriptId,
@@ -53,117 +70,111 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
     } catch (error) {
       console.error("Error updating scheduler:", error);
       alert("An error occurred while updating the scheduler.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h3>Edit Scheduler</h3>
-      <label>
-        Scheduled Time:
-        <DatePicker
-          selected={scheduledTime}
-          onChange={(date) => setScheduledTime(date)}
-          showTimeSelect
-          dateFormat="Pp"
-          disabled={!isEditing}
-        />
-      </label>
-      <label>
-        Recurrence:
-        <select
-          value={recurrence}
-          onChange={(e) => setRecurrence(e.target.value)}
-          disabled={!isEditing}
-        >
-          <option value="once">Once</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </label>
-      <button onClick={isEditing ? handleEditSchedule : () => setIsEditing(true)}>
-        {isEditing ? "Save Changes" : "Edit"}
-      </button>
+    <div style={styles.container}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Scheduler</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div style={styles.formGroup}>
+            <Label style={styles.label}>Scheduled Time:</Label>
+            <DatePicker
+              selected={scheduledTime}
+              onChange={(date) => setScheduledTime(date)}
+              showTimeSelect
+              dateFormat="Pp"
+              disabled={!isEditing}
+              customInput={
+                <input style={styles.datePicker} placeholder="Select date and time" />
+              }
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <Label style={styles.label}>Recurrence:</Label>
+            <select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value)}
+              disabled={!isEditing}
+              style={styles.select}
+            >
+              <option value="once">Once</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div style={styles.buttonGroup}>
+            {isEditing && (
+              <Button
+                variant="outline"
+                style={styles.cancelButton}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              style={styles.saveButton}
+              onClick={isEditing ? handleEditSchedule : () => setIsEditing(true)}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : isEditing ? "Save Changes" : "Edit"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-export default EditScheduler;
-
-
-
-
 const styles = {
   container: {
-    width: "350px",
+    maxWidth: "600px",
     margin: "0 auto",
     padding: "20px",
-    borderRadius: "8px",
-    backgroundColor: "#e9ecef",
-    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
   },
-  title: {
-    fontSize: "1.5em",
+  formGroup: {
     marginBottom: "20px",
-    color: "#343a40",
-  },
-  inputGroup: {
-    marginBottom: "15px",
   },
   label: {
     display: "block",
-    fontSize: "14px",
-    color: "#495057",
+    marginBottom: "8px",
     fontWeight: "bold",
-    marginBottom: "5px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "14px",
-    borderRadius: "5px",
-    border: "1px solid #ced4da",
   },
   select: {
     width: "100%",
-    padding: "10px",
-    fontSize: "14px",
-    borderRadius: "5px",
-    border: "1px solid #ced4da",
+    padding: "8px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
   },
-  buttonContainer: {
+  datePicker: {
+    width: "100%",
+    padding: "8px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+  },
+  buttonGroup: {
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     gap: "10px",
-    marginTop: "20px",
   },
-  scheduleButton: {
-    padding: "10px 20px",
+  cancelButton: {
+    backgroundColor: "#f5f5f5",
+    color: "#333",
+  },
+  saveButton: {
     backgroundColor: "#007bff",
     color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-  },
-  stopButton: {
-    padding: "10px 20px",
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-  },
-  editButton: {
-    padding: "10px 20px",
-    backgroundColor: "#ffc107",
-    color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
   },
 };
+
+export default EditScheduler;
+
+
