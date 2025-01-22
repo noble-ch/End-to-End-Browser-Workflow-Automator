@@ -2,6 +2,9 @@ import { useState } from "react";
 import { LoginForm } from "@/components/LoginForm";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+
 
 export default function LoginPage() {
   const [error, setError] = useState("");

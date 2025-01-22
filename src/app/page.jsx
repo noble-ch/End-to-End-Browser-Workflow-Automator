@@ -29,8 +29,7 @@ const LandingPage = () => {
   };
 
   const handleDemoPlay = () => {
-    // This can be replaced with actual demo logic
-    alert("Play Demo");
+    router.push("/auth/signup");
   };
 
   // Image data for services
@@ -48,8 +47,18 @@ const LandingPage = () => {
   // Destination data corrected with the appropriate object structure
   const destinationImages = [
     { src: image5, name: "web Testing ", price: "$199", days: "5 tasks" },
-    { src: image6, name: "performance metrics", price: "$99", days: "result log for every test " },
-    { src: image7, name: "web automation ", price: "$599", days: "task scheduler and screenshots" },
+    {
+      src: image6,
+      name: "performance metrics",
+      price: "$99",
+      days: "result log for every test ",
+    },
+    {
+      src: image7,
+      name: "web automation ",
+      price: "$599",
+      days: "task scheduler and screenshots",
+    },
   ];
 
   return (
@@ -82,7 +91,7 @@ const LandingPage = () => {
                 variant="outline"
                 className="transition-all duration-300 hover:scale-105 text-black border-white hover:bg-white hover:text-black"
               >
-                Play Demo
+                Get Started
               </Button>
             </div>
           </div>
@@ -92,7 +101,7 @@ const LandingPage = () => {
               alt="Relaxing Person"
               width={500}
               height={500}
-              className="rounded-xl shadow-lg "
+              className="rounded-xl  "
             />
           </div>
         </div>

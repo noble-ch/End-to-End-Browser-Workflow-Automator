@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         });
       }
 
-      const script = description;
+      const RecordedScript = description;
 
       // Generate a new script using Gemini API if not found in the database
       const jsonData = {
@@ -113,7 +113,7 @@ export default async function handler(req, res) {
       \`\`\`
       
       Given script:
-      \n${script}
+      \n${RecordedScript}
       `,
               },
             ],

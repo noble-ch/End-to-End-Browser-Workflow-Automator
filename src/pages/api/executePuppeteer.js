@@ -45,11 +45,10 @@ export default async function handler(req, res) {
 
     exec(
       `node ${tempFilePath}`,
-      { timeout: 60000 }, // Timeout for Puppeteer tasks
+      { timeout: 60000 },
       async (error, stdout, stderr) => {
-        fs.unlinkSync(tempFilePath); // Clean up temp file
+        fs.unlinkSync(tempFilePath); 
 
-        // Collect screenshots from the output directory
         try {
           screenshots = fs
             .readdirSync(outputDir)

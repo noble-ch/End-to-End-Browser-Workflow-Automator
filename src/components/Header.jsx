@@ -12,7 +12,7 @@ const Header = () => {
         href={isAuthenticated ? "/dashboard" : "/"}
         className="text-lg text-primary font-bold"
       >
-        <h1>Logo</h1>
+        <h1>Auto</h1>
       </a>
     </header>
   );
