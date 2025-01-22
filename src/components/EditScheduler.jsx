@@ -3,34 +3,44 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
-  const [scheduledTime, setScheduledTime] = useState("");
+  const [scheduledTime, setScheduledTime] = useState(null);
   const [recurrence, setRecurrence] = useState("once");
   const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch current job details if editing an existing schedule
   useEffect(() => {
-    if (scriptId) {
-      fetch(`/api/schedulePuppeteer?scriptId=${scriptId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setScheduledTime(data.scheduledTime);
-          setRecurrence(data.recurrence || "once");
-        })
-        .catch((error) => console.error("Error fetching scheduler:", error));
-    }
+    const fetchJobDetails = async () => {
+      if (scriptId) {
+        const response = await fetch(`/api/schedulePuppeteer?scriptId=${scriptId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setScheduledTime(new Date(data.scheduledTime));
+          setRecurrence(data.recurrence);
+        }
+      }
+    };
+    fetchJobDetails();
   }, [scriptId]);
 
   const handleEditSchedule = async () => {
     try {
+      if (!aIGeneratedCode || !recordId || !scriptId) {
+        alert("Required data is missing. Please check your input.");
+        return;
+      }
+
+      const payload = {
+        scheduledTime: scheduledTime ? scheduledTime.toISOString() : null,
+        aIGeneratedCode,
+        recordId,
+        scriptId,
+        recurrence,
+      };
+
       const response = await fetch(`/api/schedulePuppeteer`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          scheduledTime,
-          aIGeneratedCode,
-          recordId,
-          scriptId,
-          recurrence,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -41,8 +51,8 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
         alert(error.error || "Failed to update scheduler.");
       }
     } catch (error) {
-      alert("An error occurred.");
-      console.error(error);
+      console.error("Error updating scheduler:", error);
+      alert("An error occurred while updating the scheduler.");
     }
   };
 
@@ -52,8 +62,8 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
       <label>
         Scheduled Time:
         <DatePicker
-          selected={scheduledTime ? new Date(scheduledTime) : null}
-          onChange={(date) => setScheduledTime(date.toISOString())}
+          selected={scheduledTime}
+          onChange={(date) => setScheduledTime(date)}
           showTimeSelect
           dateFormat="Pp"
           disabled={!isEditing}
@@ -72,7 +82,7 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
           <option value="monthly">Monthly</option>
         </select>
       </label>
-      <button onClick={() => setIsEditing(!isEditing)}>
+      <button onClick={isEditing ? handleEditSchedule : () => setIsEditing(true)}>
         {isEditing ? "Save Changes" : "Edit"}
       </button>
     </div>
@@ -80,6 +90,9 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
 }
 
 export default EditScheduler;
+
+
+
 
 const styles = {
   container: {

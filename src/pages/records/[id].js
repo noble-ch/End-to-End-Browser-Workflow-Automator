@@ -25,7 +25,8 @@ function RecordDetail() {
   const [aIGeneratedCode, setAIGeneratedCode] = useState(null);
   const [geminiResponseData, setGeminiResponseData] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [showScheduler, setShowScheduler] = useState(false); // State to control TaskScheduler visibility
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [editScheduler, setEditScheduler] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
@@ -129,7 +130,7 @@ function RecordDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           script: aIGeneratedCode,
-          scriptId: geminiResponseData.id, // This is the script ID.
+          scriptId: geminiResponseData.id,
           recordId: id,
         }),
       });
@@ -149,8 +150,14 @@ function RecordDetail() {
     }
   };
 
-  const handleShowScheduler = () => {
-    setShowScheduler(true);
+  const toggleScheduler = () => {
+    setShowScheduler((prev) => !prev);
+    setEditScheduler(false);
+  };
+
+  const toggleEditScheduler = () => {
+    setEditScheduler((prev) => !prev);
+    setShowScheduler(false);
   };
 
   if (error) {
@@ -272,24 +279,28 @@ function RecordDetail() {
 
         <div>
           <DescriptionDisplayer id={id} />
-          {!showScheduler ? (
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={handleShowScheduler}
-            >
-              Schedule
-            </Button>
-          ) : (
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={toggleScheduler}
+          >
+            {showScheduler ? "Hide Scheduler" : "Schedule"}
+          </Button>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={toggleEditScheduler}
+          >
+            {editScheduler ? "Hide Edit Scheduler" : "Edit Schedule"}
+          </Button>
+          {showScheduler && (
             <TaskScheduler
               aIGeneratedCode={aIGeneratedCode}
               recordId={id}
-              scriptId={geminiResponseData?.id} // Pass the scriptId here
+              scriptId={geminiResponseData?.id}
             />
           )}
-          <div><EditScheduler aIGeneratedCode={aIGeneratedCode}
-              recordId={id}
-              scriptId={geminiResponseData?.id}/></div>
+          {editScheduler && <EditScheduler />}
         </div>
       </div>
     </div>
@@ -297,3 +308,5 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
+
+
