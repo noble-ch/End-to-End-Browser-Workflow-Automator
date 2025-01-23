@@ -13,6 +13,8 @@ export default function App({ Component, pageProps }) {
         <Component {...pageProps} />
       ) : (
         <MainLayout>
+          <script src="https://accounts.google.com/gsi/client" async defer></script>
+
           <Component {...pageProps} />
         </MainLayout>
       )}

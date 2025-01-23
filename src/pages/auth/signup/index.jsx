@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,15 +45,51 @@ export default function RegisterPage() {
     }
   };
 
+  useEffect(() => {
+    window.google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse,
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-signin-btn"),
+      { theme: "outline", size: "large" }
+    );
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: response.credential }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // Save tokens or user data
+        localStorage.setItem("accessToken", data.accessToken);
+        router.push("/dashboard");
+      } else {
+        console.error("Google login failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Error during Google login:", error);
+    }
+  };
+
   const [isTermsChecked, setIsTermsChecked] = useState(false);
 
   return (
-    <div className="flex justify-center items-center  min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center  min-h-screen ">
       <img
         src="/Decore.svg"
-        className="absolute inset-0 w-50 h-full object-cover z-0 left-96 ms-96"
+        alt="Decoration"
+        className="absolute top-0 right-0 z-0 max-w-[600px] sm:max-w-[900px]"
       />
-      <Card className="p-8 bg-white shadow-lg z-20 w-[600px]">
+      <Card className="px-8 pt-2 pb-6 mb-0 bg-white shadow-lg z-20 w-[600px]">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Sign up</CardTitle>
           <CardDescription className="text-center">
@@ -68,7 +104,7 @@ export default function RegisterPage() {
             );
             handleSubmit(formData);
           }}
-          className="mt-6"
+          className="mt-1"
         >
           <div className="flex gap-4">
             <div className="flex-1">
@@ -97,7 +133,7 @@ export default function RegisterPage() {
               />
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-2">
             <Label htmlFor="email" className="block text-sm font-medium ">
               Email
             </Label>
@@ -109,7 +145,7 @@ export default function RegisterPage() {
               required
             />
           </div>
-          <div className="mt-4">
+          <div className="mt-2">
             <Label htmlFor="password" className="block text-sm font-medium ">
               Password
             </Label>
@@ -129,7 +165,7 @@ export default function RegisterPage() {
               </span>
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-2">
             <Label
               htmlFor="confirmPassword"
               className="block text-sm font-medium "
@@ -152,7 +188,7 @@ export default function RegisterPage() {
               </span>
             </div>
           </div>
-          <div className="mt-4 flex items-center">
+          <div className="mt-2 flex items-center">
             <input
               id="terms"
               name="terms"
@@ -175,35 +211,20 @@ export default function RegisterPage() {
           </div>
           <Button
             type="submit"
-            className="mt-6 w-full text-white hover:text-primary border py-2 px-4 rounded-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="mt-2 w-full text-white hover:text-primary border py-2 px-4 rounded-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             disabled={!isTermsChecked}
           >
             Create account
           </Button>
-          <div className=" my-6 relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+          <div className=" my-2 relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
             <span className="relative z-10 bg-background px-2 text-muted-foreground">
               Or continue with
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
-                  fill="currentColor"
-                />
-              </svg>
-              <span className="sr-only">Login with Apple</span>
-            </Button>
-            <Button variant="outline" className="w-full">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                  fill="currentColor"
-                />
-              </svg>
-              <span className="sr-only">Login with Google</span>
-            </Button>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="flex justify-center ">
+              <div id="google-signin-btn"></div>
+            </div>
           </div>
 
           <p className="mt-4 text-center text-sm text-gray-600">
