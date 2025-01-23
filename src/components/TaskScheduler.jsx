@@ -130,6 +130,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
               dateFormat="Pp"
               style={styles.input}
               disabled={isScheduled}
+              className="border border-gray-300 rounded-md"
             />
           </div>
 
@@ -201,7 +202,7 @@ const styles = {
     padding: "10px",
     fontSize: "14px",
     borderRadius: "5px",
-    border: "1px solid #ced4da",
+    border: "2px solid #ced4da",
   },
   select: {
     width: "100%",
