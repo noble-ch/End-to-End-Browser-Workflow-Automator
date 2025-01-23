@@ -22,6 +22,9 @@ const ExecutionOutputSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    runType: {
+      type: String, enum: ["manual", "automatic"],
+    },
     screenshots: [
       {
         path: {

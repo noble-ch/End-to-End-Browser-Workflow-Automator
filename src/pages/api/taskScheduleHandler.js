@@ -1,4 +1,7 @@
 import { schedulePuppeteerJob, getScheduledJob,editPuppeteerJob } from "@/utils/scheduler";
+import ScheduledTask from "@/models/ScheduledTask";
+import mongoose from "mongoose";
+
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -37,6 +40,7 @@ export default async function handler(req, res) {
       }
 
       try {
+        await saveTaskToDatabase(recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence);
         await schedulePuppeteerJob(scheduledTime, aIGeneratedCode, recordId, scriptId, recurrence);
         res.status(200).json({ message: "Task scheduled successfully" });
       } catch (err) {
@@ -53,7 +57,8 @@ export default async function handler(req, res) {
       }
     
       try {
-        await editPuppeteerJob(scriptId, scheduledTime, aIGeneratedCode, recurrence);
+        await editPuppeteerJob(scriptId, new Date(scheduledTime).toISOString(), aIGeneratedCode, recurrence);
+        
         return res.status(200).json({ message: "Task updated successfully" });
       } catch (err) {
         console.error("Error in PUT /api/schedulePuppeteer:", err);
@@ -64,3 +69,32 @@ export default async function handler(req, res) {
       res.status(405).json({ error: "Method not allowed" });
   }
 }
+const saveTaskToDatabase = async (recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence) => {
+  
+  try {
+    const existingTask = await ScheduledTask.findOne({ scriptId });
+
+    if (existingTask) {
+      existingTask.scheduledTime = scheduledTime;
+      existingTask.script = aIGeneratedCode;
+      existingTask.status = "scheduled";
+      existingTask.recurrence = recurrence;
+      await existingTask.save();
+     
+    } else {
+      const newTask = new ScheduledTask({
+        recordId,
+        scriptId,
+        script: aIGeneratedCode,
+        scheduledTime,
+        status: "scheduled",
+        recurrence,
+      });
+      await newTask.save();
+    }
+  } catch (error) {
+    console.error("Error saving task to database:", error);
+    throw new Error("Error saving task to database");
+  }
+};
+
