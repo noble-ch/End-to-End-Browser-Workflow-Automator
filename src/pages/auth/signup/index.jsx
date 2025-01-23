@@ -89,7 +89,7 @@ export default function RegisterPage() {
         alt="Decoration"
         className="absolute top-0 right-0 z-0 max-w-[600px] sm:max-w-[900px]"
       />
-      <Card className="px-8 pt-2 pb-6 mb-0 bg-white shadow-lg z-20 w-[600px]">
+      <Card className="px-8 pt-2 pb-6 mb-0 bg-white shadow-lg z-20 w-[400px]">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Sign up</CardTitle>
           <CardDescription className="text-center">
