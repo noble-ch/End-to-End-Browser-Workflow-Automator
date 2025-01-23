@@ -13,7 +13,7 @@ const ensureDbConnection = async () => {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
-      console.log("Database connected successfully");
+      // console.log("Database connected successfully");
     } catch (error) {
       console.error("Database connection failed:", error);
       throw new Error("Database connection failed");
@@ -42,17 +42,18 @@ const getCronExpressionFromDate = (date, recurrence) => {
       return `${minutes} ${hours} ${dayOfMonth} ${month} *`; // One-time
   }
 };
-
-// Function to schedule Puppeteer job
+let scheduledJob = {};// Function to schedule Puppeteer job
 export const schedulePuppeteerJob = async (scheduledTime, aIGeneratedCode, recordId, scriptId, recurrence) => {
-  await ensureDbConnection(); // Ensure DB connection
 
   const cronExpression = getCronExpressionFromDate(new Date(scheduledTime), recurrence);
-
+  console.log("Scheduled Time:", scheduledTime);
+  console.log("Parsed Date:", new Date(scheduledTime));
+  console.log("Generated Cron Expression:", cronExpression);
+  const runType = "automatic";
   // Create the cron job
   const job = cron.schedule(cronExpression, async () => {
     const req = {
-      body: { recordId, scriptId, script: aIGeneratedCode },
+      body: { recordId, scriptId, script: aIGeneratedCode, runType},
       method: "POST",
     };
     const res = {
@@ -60,109 +61,90 @@ export const schedulePuppeteerJob = async (scheduledTime, aIGeneratedCode, recor
         json: (data) => console.log("API Response:", statusCode, data),
       }),
     };
-
-    await handler(req, res); // Execute the Puppeteer script
-    await saveTaskToDatabase(recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence);
+    await handler(req, res); 
   });
-
-  // Store the job in the in-memory object
   scheduledJobs[scriptId] = job;
-
-  // Save the job to the database
-  await saveTaskToDatabase(recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence);
-
   console.log("Job scheduled:", scriptId);
 };
 
 export const cancelPuppeteerJob = async (scriptId) => {
-  await ensureDbConnection();
-
   // Check if the job exists in memory
   const job = scheduledJobs[scriptId];
   if (job) {
-    job.stop(); // Stop the cron job
-    delete scheduledJobs[scriptId]; // Remove from in-memory storage
+    job.stop(); 
     console.log("Job canceled and removed from memory:", scriptId);
   } else {
     console.warn("No job found in memory for scriptId:", scriptId);
   }
 
-  // Delete the task from the database
   try {
-    const result = await ScheduledTask.deleteOne({ scriptId });
-    if (result.deletedCount > 0) {
-      console.log("Task removed from database:", scriptId);
+    const result = await ScheduledTask.findOneAndUpdate(
+      { scriptId },
+      { status: "canceled" }, 
+      { new: true } 
+    );
+
+    if (result) {
+      console.log("Task status updated to 'canceled' in database:", scriptId);
       return true;
     } else {
       console.warn("Task not found in database for scriptId:", scriptId);
       return false;
     }
   } catch (error) {
-    console.error("Error removing task from database:", error);
-    throw new Error("Error removing task from database");
+    console.error("Error updating task status in database:", error);
+    throw new Error("Error updating task status in database");
   }
 };
 
 
 
-// Helper function to save the task to the database
-const saveTaskToDatabase = async (recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence) => {
-  await ensureDbConnection(); // Ensure DB connection
+// // Helper function to save the task to the database
+// const saveTaskToDatabase = async (recordId, scriptId, aIGeneratedCode, scheduledTime, recurrence) => {
+//   await ensureDbConnection(); // Ensure DB connection
 
-  try {
-    // Check if the task already exists in the database
-    const existingTask = await ScheduledTask.findOne({ scriptId });
+//   try {
+//     // Check if the task already exists in the database
+//     const existingTask = await ScheduledTask.findOne({ scriptId });
 
-    if (existingTask) {
-      // Update the existing task
-      existingTask.scheduledTime = scheduledTime;
-      existingTask.script = aIGeneratedCode;
-      existingTask.status = "scheduled";
-      existingTask.recurrence = recurrence;
-      await existingTask.save();
-      console.log("Task updated in database:", existingTask);
-    } else {
-      // Create a new task
-      const newTask = new ScheduledTask({
-        recordId,
-        scriptId,
-        script: aIGeneratedCode,
-        scheduledTime,
-        status: "scheduled",
-        recurrence,
-      });
-      await newTask.save();
-      console.log("New task saved to database:", newTask);
-    }
-  } catch (error) {
-    console.error("Error saving task to database:", error);
-    throw new Error("Error saving task to database");
-  }
-};
+//     if (existingTask) {
+//       // Update the existing task
+//       existingTask.scheduledTime = scheduledTime;
+//       existingTask.script = aIGeneratedCode;
+//       existingTask.status = "scheduled";
+//       existingTask.recurrence = recurrence;
+//       await existingTask.save();
+//       // console.log("Task updated in database:", existingTask);
+//     } else {
+//       // Create a new task
+//       const newTask = new ScheduledTask({
+//         recordId,
+//         scriptId,
+//         script: aIGeneratedCode,
+//         scheduledTime,
+//         status: "scheduled",
+//         recurrence,
+//       });
+//       await newTask.save();
+//       // console.log("New task saved to database:", newTask);
+//     }
+//   } catch (error) {
+//     console.error("Error saving task to database:", error);
+//     throw new Error("Error saving task to database");
+//   }
+// };
 
 
 
 // Function to fetch a scheduled job from scheduledJobs
 export const getScheduledJob = async (scriptId) => {
   try {
-    // First, check the in-memory scheduledJobs object
-    const job = scheduledJobs[scriptId];
 
-    if (job) {
-      console.log("Fetched job from in-memory storage");
-
-      // Return only serializable details (not the entire job object)
-      return {
-        scriptId,
-        status: "active", // You can add other metadata as needed
-      };
-    }
-
-    // If not found in-memory, fetch from the database
+   
     const dbJob = await ScheduledTask.findOne({ scriptId });
 
     if (!dbJob) {
-      console.log(`No job found in database for scriptId: ${scriptId}`);
+    
       return null;
     }
 
@@ -183,16 +165,19 @@ export const getScheduledJob = async (scriptId) => {
 export const editPuppeteerJob = async (scriptId, scheduledTime, aIGeneratedCode, recurrence) => {
   await ensureDbConnection(); // Ensure DB connection
 
-  // Cancel the existing job
+  // Cancel the existing job if it exists
   const existingJob = scheduledJobs[scriptId];
   if (existingJob) {
     existingJob.stop();
     delete scheduledJobs[scriptId];
     console.log("Existing job canceled:", scriptId);
+  } else {
+    console.log("No existing job found to cancel for scriptId:", scriptId);
   }
 
   // Create a new cron expression based on the updated scheduledTime and recurrence
   const cronExpression = getCronExpressionFromDate(new Date(scheduledTime), recurrence);
+  console.log("Generated Cron Expression:", cronExpression); // Log cron expression to debug
 
   // Schedule a new job with updated details
   const newJob = cron.schedule(cronExpression, async () => {
@@ -206,14 +191,16 @@ export const editPuppeteerJob = async (scriptId, scheduledTime, aIGeneratedCode,
       }),
     };
 
+    console.log(`Running job for scriptId: ${scriptId}`); // Log job execution
     await handler(req, res); // Execute the Puppeteer script
     await saveTaskToDatabase(null, scriptId, aIGeneratedCode, scheduledTime, recurrence);
   });
 
-  // Update the in-memory scheduledJobs object
+  // Ensure the job is stored in memory
   scheduledJobs[scriptId] = newJob;
+  console.log("New job scheduled:", scriptId);
 
-  // Update the database
+  // Update the database with the new job details
   try {
     await saveTaskToDatabase(null, scriptId, aIGeneratedCode, scheduledTime, recurrence);
     console.log("Job updated successfully in database:", scriptId);

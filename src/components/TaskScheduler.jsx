@@ -12,17 +12,41 @@ import {
 } from "@/components/ui/card";
 
 function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
-  const [scheduledTime, setScheduledTime] = useState(null); // Correctly initializing as null
-  const [isScheduling, setIsScheduling] = useState(false);
-  const [recurrence, setRecurrence] = useState(""); // Ensure default state
+  const [scheduledTime, setScheduledTime] = useState(null); 
+  const [recurrence, setRecurrence] = useState(""); 
   const [isEditing, setIsEditing] = useState(true);
+  const [isScheduling, setIsScheduling] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
-    if (scriptId) {
-      console.log("Script ID received in TaskScheduler:", scriptId);
-    }
-  }, [scriptId]);
+    const fetchJobDetails = async () => {
+        if (scriptId) {
+            try {
+                const response = await fetch(`/api/taskScheduleHandler?scriptId=${scriptId}`, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setScheduledTime(new Date(data.scheduledTime));
+                    if (data.status === "scheduled") {
+                      setIsScheduled(true);
+                    } else {
+                      setIsScheduled(false);
+                    }
+                    setRecurrence(data.recurrence || "once");
+                } else {
+                    console.error("Failed to fetch job details:", await response.json());
+                }
+            } catch (error) {
+                console.error("Error fetching job details:", error);
+            }
+        }
+    };
+    fetchJobDetails();
+}, [scriptId]);
 
   const handleSchedule = async () => {
     if (!scheduledTime || !scriptId || !recurrence) {
@@ -32,7 +56,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
 
     setIsScheduling(true);
     try {
-      const response = await fetch("/api/schedulePuppeteer", {
+      const response = await fetch("/api/taskScheduleHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +72,6 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
 
       const result = await response.json();
       if (response.ok) {
-        alert(result.message);
         setIsScheduled(true);
       } else {
         alert(result.error);
@@ -77,7 +100,6 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
 
       const result = await response.json();
       if (response.ok) {
-        alert(result.message);
         setIsScheduled(false);
       } else {
         alert(result.error);
@@ -88,11 +110,11 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
   };
 
   return (
-    <div style={styles.container}>
+    <div >
       <Card>
         <CardHeader>
           <CardTitle>
-            <h3>Task Scheduler</h3>
+            <h3>Schedule your Task</h3>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -107,7 +129,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
               showTimeSelect
               dateFormat="Pp"
               style={styles.input}
-              disabled={!isEditing}
+              disabled={isScheduled}
             />
           </div>
 
@@ -120,12 +142,11 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
               value={recurrence}
               onChange={(e) => setRecurrence(e.target.value)}
               style={styles.select}
-              disabled={!isEditing}
+              disabled={isScheduled}
             >
               <option value="" disabled>
                 Select Recurrence
               </option>
-              <option value="once">Once</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>

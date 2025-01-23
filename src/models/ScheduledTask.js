@@ -7,6 +7,8 @@ const ScheduledTaskSchema = new mongoose.Schema({
   scheduledTime: { type: Date, required: true },
   status: { type: String, enum: ["scheduled", "completed", "canceled"], required: true },
   recurrence: { type: String, enum: ["daily", "weekly", "monthly", "one-time"], required: true },
+  createdAt : { type: Date, default: Date.now },
+  updatedAt : { type: Date, default: Date.now },
 });
 
 export default mongoose.models.ScheduledTask || mongoose.model("ScheduledTask", ScheduledTaskSchema);

@@ -20,30 +20,37 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
   // Fetch current job details if editing an existing schedule
   useEffect(() => {
     const fetchJobDetails = async () => {
-      if (scriptId) {
-        try {
-          const response = await fetch(`/api/schedulePuppeteer?scriptId=${scriptId}`);
-          if (response.ok) {
-            const data = await response.json();
-            setScheduledTime(new Date(data.scheduledTime));
-            setRecurrence(data.recurrence);
-          } else {
-            console.error("Failed to fetch job details:", await response.json());
-          }
-        } catch (error) {
-          console.error("Error fetching job details:", error);
+        if (scriptId) {
+            try {
+                const response = await fetch(`/api/taskScheduleHandler?scriptId=${scriptId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.scheduledTime && !isNaN(new Date(data.scheduledTime).getTime())) {
+                        setScheduledTime(new Date(data.scheduledTime));
+                    } else {
+                        console.error("Invalid date received:", data.scheduledTime);
+                    }
+                    setRecurrence(data.recurrence || "once");
+                } else {
+                    console.error("Failed to fetch job details:", await response.json());
+                }
+            } catch (error) {
+                console.error("Error fetching job details:", error);
+            }
         }
-      }
     };
     fetchJobDetails();
-  }, [scriptId]);
+}, [scriptId]);
 
   const handleEditSchedule = async () => {
     if (!scheduledTime || !aIGeneratedCode || !recordId || !scriptId) {
       alert("All fields are required. Please complete the form.");
       return;
     }
-
+    if (!scheduledTime || isNaN(new Date(scheduledTime).getTime())) {
+      alert("Please select a valid date and time.");
+      return;
+  }
     setLoading(true);
     try {
       const payload = {
@@ -54,13 +61,17 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
         recurrence,
       };
 
-      const response = await fetch(`/api/schedulePuppeteer`, {
+      const response = await fetch(`/api/taskScheduleHandler`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
+        // On success, update the state to reflect the new job details
+        const updatedJob = await response.json();
+        setScheduledTime(new Date(updatedJob.scheduledTime));
+        setRecurrence(updatedJob.recurrence);
         alert("Scheduler updated successfully!");
         setIsEditing(false);
       } else {
@@ -103,7 +114,6 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
               disabled={!isEditing}
               style={styles.select}
             >
-              <option value="once">Once</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
@@ -119,7 +129,7 @@ function EditScheduler({ aIGeneratedCode, recordId, scriptId }) {
                 Cancel
               </Button>
             )}
-            <Button
+            <Button className="p-6"
               variant="primary"
               style={styles.saveButton}
               onClick={isEditing ? handleEditSchedule : () => setIsEditing(true)}
@@ -176,5 +186,4 @@ const styles = {
 };
 
 export default EditScheduler;
-
 

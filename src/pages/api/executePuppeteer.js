@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { recordId, scriptId} = req.body;
+  const { recordId, scriptId, runType} = req.body;
   const scriptObject = await GeneratedScript.findById(scriptId);
   const script = scriptObject?.script;
   // console.log("executePuppeteer",script);
@@ -50,9 +50,7 @@ export default async function handler(req, res) {
 
     // Execute the Puppeteer script
     exec(`node ${tempFilePath}`, { timeout: 60000 }, async (error, stdout, stderr) => {
-      fs.unlinkSync(tempFilePath); // Clean up temp file
-
-      // Collect screenshots
+      fs.unlinkSync(tempFilePath); 
       try {
         screenshots = fs
           .readdirSync(outputDir)
@@ -64,8 +62,6 @@ export default async function handler(req, res) {
       } catch (fsError) {
         console.error("Error reading screenshots:", fsError.message);
       }
-
-      // Process logs (stdout or stderr)
       const logOutput = stdout || stderr;
       if (logOutput) {
         logs.push({ timestamp: new Date(), content: logOutput });
@@ -81,6 +77,7 @@ export default async function handler(req, res) {
           scriptId,
           runId,
           status,
+          runType: runType,
           error: errorMessage,
           screenshots,
           logs: JSON.stringify(logs), // Save logs as a string
@@ -117,6 +114,7 @@ export default async function handler(req, res) {
         recordId,
         scriptId,
         runId,
+        runType: runType, 
         status: "failed",
         error: err.message,
         screenshots,
