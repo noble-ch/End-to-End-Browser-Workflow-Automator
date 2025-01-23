@@ -49,8 +49,6 @@ function RecordsList() {
 
   return (
     <div>
-      
-
       <Table className="table-auto w-full text-center rounded-lg border">
         <TableCaption>My Tasks</TableCaption>
         <TableHeader>
