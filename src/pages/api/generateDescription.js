@@ -1,6 +1,6 @@
 //api/generateDescription.js
 import fs from "fs/promises";
-import fs from "fs/promises";
+
 
 export async function generateDescription({ fileContent }) {
   try {

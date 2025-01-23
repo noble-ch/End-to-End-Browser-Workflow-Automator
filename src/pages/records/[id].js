@@ -15,6 +15,7 @@ import { Atom } from "react-loading-indicators";
 import { Progress } from "@/components/ui/progress";
 import TaskScheduler from "@/components/TaskScheduler";
 import EditScheduler from "@/components/EditScheduler";
+import { run } from "agenda/dist/job/run";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -132,6 +133,7 @@ function RecordDetail() {
           script: aIGeneratedCode,
           scriptId: geminiResponseData.id,
           recordId: id,
+          runType: "manual",
         }),
       });
 
@@ -226,8 +228,8 @@ function RecordDetail() {
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
-            <CardContent className="h-[330]">
-              <CardDescription>
+            <CardContent className="h-[330] flex flex-row justify-between h-ful">
+              <CardDescription >
                 <p className="text-gray-700 mb-2">
                   <strong>Description:</strong> {record.description}
                 </p>
@@ -266,43 +268,24 @@ function RecordDetail() {
                       disabled={running}
                       className={`${running ? "opacity-50" : ""}`}
                     >
-                      {running ? "Running... " : "Run Task"}
+                      {running ? "Running... " : "Run Now"}
                     </Button>
                   </div>
                 ) : (
                   <p className="text-gray-700">No file available</p>
                 )}
               </CardDescription>
+              <TaskScheduler
+              aIGeneratedCode={aIGeneratedCode}
+              recordId={id}
+              scriptId={geminiResponseData?.id}
+            />
             </CardContent>
           </Card>
         </div>
 
         <div>
           <DescriptionDisplayer id={id} />
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={toggleScheduler}
-          >
-            {showScheduler ? "Hide Scheduler" : "Schedule"}
-          </Button>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={toggleEditScheduler}
-          >
-            {editScheduler ? "Hide Edit Scheduler" : "Edit Schedule"}
-          </Button>
-          {showScheduler && (
-            <TaskScheduler
-              aIGeneratedCode={aIGeneratedCode}
-              recordId={id}
-              scriptId={geminiResponseData?.id}
-            />
-          )}
-          {editScheduler && <EditScheduler  aIGeneratedCode={aIGeneratedCode}
-              recordId={id}
-              scriptId={geminiResponseData?.id}/>}
         </div>
       </div>
     </div>
