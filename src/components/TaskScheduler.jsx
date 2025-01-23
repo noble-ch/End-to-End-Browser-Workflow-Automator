@@ -17,6 +17,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
   const [isEditing, setIsEditing] = useState(true);
   const [isScheduling, setIsScheduling] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -124,9 +125,13 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
               Time:
             </Label>
             <DatePicker
+              selected={scheduledTime}
               onChange={(date) => {
-                if (date && date < new Date()) {
-                  alert("You cannot select a past date or time.");
+                const currentDate = new Date();
+                if(date < currentDate) {
+                
+                  setError("Scheduled time must be in the future");
+                  return
                 } else {
                   setScheduledTime(date);
                 }
@@ -134,7 +139,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
               showTimeSelect
               dateFormat="Pp"
               disabled={isScheduled}
-              className="mb-3 w-full  fontSize-14 border-2 border-gray-300 rounded borderRadius-5"
+              className="border border-gray-300 rounded-md"
             />
           </div>
 
@@ -162,7 +167,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
           <div  
           className="flex justify-center gap-10 mt-5">
             {isScheduled ? (
-              <Button onClick={handleStop} style={styles.stopButton}>
+              <Button onClick={handleStop}>
                 Stop Task
               </Button>
             ) : (
