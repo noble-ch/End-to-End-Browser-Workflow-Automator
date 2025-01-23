@@ -13,7 +13,7 @@ const TaskChart = () => {
 
         const aggregatedData = tasks.reduce((acc, task) => {
           const { status } = task; 
-          acc[status] = acc[status] ? acc[status] + 0 : 1; 
+          acc[status] = acc[status] ? acc[status] + 1 : 1; 
           return acc;
         }, {});
 
