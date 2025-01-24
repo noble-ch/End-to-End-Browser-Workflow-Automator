@@ -17,6 +17,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
   const [isEditing, setIsEditing] = useState(true);
   const [isScheduling, setIsScheduling] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -110,7 +111,7 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
   };
 
   return (
-    <div >
+    <div>
       <Card>
         <CardHeader>
           <CardTitle>
@@ -119,30 +120,39 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
         </CardHeader>
         <CardContent>
           {/* Scheduling Section */}
-          <div style={styles.inputGroup}>
-            <Label htmlFor="scheduledTime" style={styles.label}>
+          <div className="mb-15">
+            <Label htmlFor="scheduledTime" className="mb-3 fontWeight-bold color-gray-700 fontSize-14 block">
               Time:
             </Label>
             <DatePicker
               selected={scheduledTime}
-              onChange={(date) => setScheduledTime(date)}
+              onChange={(date) => {
+                const currentDate = new Date();
+                if(date < currentDate) {
+                
+                  setError("Scheduled time must be in the future");
+                  return
+                } else {
+                  setScheduledTime(date);
+                }
+              }}
               showTimeSelect
               dateFormat="Pp"
-              style={styles.input}
               disabled={isScheduled}
               className="border border-gray-300 rounded-md"
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <Label htmlFor="recurrence" style={styles.label}>
+          <div className="mb-15">
+            <Label htmlFor="recurrence" className="mb-3 fontWeight-bold color-gray-700 fontSize-14 block">
               Repeat:
             </Label>
             <select
               id="recurrence"
               value={recurrence}
               onChange={(e) => setRecurrence(e.target.value)}
-              style={styles.select}
+             
+              className="w-full fontSize-14 border-2 border-gray-300 rounded borderRadius-5 p-2"
               disabled={isScheduled}
             >
               <option value="" disabled>
@@ -154,15 +164,16 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
             </select>
           </div>
           {/* Buttons */}
-          <div style={styles.buttonContainer}>
+          <div  
+          className="flex justify-center gap-10 mt-5">
             {isScheduled ? (
-              <Button onClick={handleStop} style={styles.stopButton}>
+              <Button onClick={handleStop}>
                 Stop Task
               </Button>
             ) : (
               <Button
                 onClick={handleSchedule}
-                style={styles.scheduleButton}
+                className="p-2-2 bg-blue-500 text-white rounded-md fontWeight-bold borderRadius-5 border-none cursor-pointer"
                 disabled={isScheduling}
               >
                 {isScheduling ? "Scheduling..." : "Schedule Task"}
@@ -176,64 +187,4 @@ function TaskScheduler({ aIGeneratedCode, recordId, scriptId }) {
 }
 
 export default TaskScheduler;
-
-const styles = {
-  container: {
-    width: "350px",
-    margin: "0 auto",
-    padding: "20px",
-    borderRadius: "8px",
-    backgroundColor: "#e9ecef",
-    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
-  },
-  inputGroup: {
-    marginBottom: "15px",
-  },
-  label: {
-    display: "block",
-    fontSize: "14px",
-    color: "#495057",
-    fontWeight: "bold",
-    marginBottom: "5px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "14px",
-    borderRadius: "5px",
-    border: "2px solid #ced4da",
-  },
-  select: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "14px",
-    borderRadius: "5px",
-    border: "1px solid #ced4da",
-  },
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "10px",
-    marginTop: "20px",
-  },
-  scheduleButton: {
-    padding: "10px 20px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-  },
-  stopButton: {
-    padding: "10px 20px",
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    fontWeight: "bold",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-  },
-};
 

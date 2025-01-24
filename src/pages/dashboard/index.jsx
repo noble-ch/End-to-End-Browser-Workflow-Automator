@@ -18,6 +18,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import TaskFormDialog from "@/components/TaskFormDialog";
 import TaskChart from "@/components/TaskChart";
+import TotalTask from "@/components/TotalTask";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -94,13 +95,13 @@ const Dashboard = () => {
             {/* //left side of the dashboard */}
             <div className="flex flex-col flex-1 gap-4 ">
               <div className="aspect-video rounded-xl bg-muted/50 border">
-              <TaskChart />
+              <TaskChart/>
               </div>
-              <div className="grid grid-rows-2 justify-items-end gap-4 rounded-xl bg-muted/50 border h-full">
-                <div className="flex flex-2 rounded-xl bg-muted/50 border w-full" />
-                <TaskFormDialog />
-              </div>
-            </div>
+              <TotalTask/>
+              <div className="flex flex-2 justify-end items-center rounded-xl bg-muted/50 border w-full">
+  <TaskFormDialog className="pl-5" />
+</div>
+</div>
           </div>
         </SidebarInset>
       </SidebarProvider>
