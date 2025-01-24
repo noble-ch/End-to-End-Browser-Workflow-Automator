@@ -35,7 +35,7 @@ export function Header() {
               Pricing
             </Link>
             <Link
-              href="#about"
+              href="about"
               className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}
             >
               About

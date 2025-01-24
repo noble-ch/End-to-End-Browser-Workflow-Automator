@@ -9,7 +9,7 @@ const Header = () => {
   return (
     <header className="bg-white p-2 w-full">
       <a
-        href={isAuthenticated ? "/dashboard" : "/"}
+        href={isAuthenticated ? "/" : "/"}
         className="text-lg text-primary font-bold"
       >
         <h1>Auto</h1>

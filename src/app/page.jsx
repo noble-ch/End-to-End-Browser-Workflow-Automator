@@ -77,6 +77,11 @@ const LandingPage = () => {
       name: "Chris Thomas",
       title:  "CEO of Red Button",
     },
+    {
+      quote: "As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency.",
+      name: "Alex ",
+      title:  "Ethiopia",
+    },
   ];
   return (
     <div className="font-sans">
@@ -334,13 +339,20 @@ const LandingPage = () => {
       {/* Testimonials Section */}
     
 
-      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-      <InfiniteMovingCards
-        items={testimonials}
-        direction="right"
-        speed="fast"
-      />
-    </div>
+  <section className="py-16 bg-gray-50">
+        <div className=" pt-16 rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8 ">
+            What People Say About Us
+          </h2>
+          <div className="rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+            <InfiniteMovingCards
+              items={testimonials}
+              direction="right"
+              speed="normal"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* {Get in Touch} */}
       <section id="information" className="py-16 bg-gray-800 text-white">
