@@ -23,19 +23,19 @@ export function Header() {
         <div className="flex items-center space-x-12">
           <nav className="hidden md:flex space-x-8">
             <Link
-              href="/features"
+               href="#features"
               className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}
             >
               Features
             </Link>
             <Link
-              href="/pricing"
+              href="#pricing"
               className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}
             >
               Pricing
             </Link>
             <Link
-              href="/about"
+              href="#about"
               className={`${linkClasses} border-b-2 border-transparent hover:border-primary pb-1`}
             >
               About
