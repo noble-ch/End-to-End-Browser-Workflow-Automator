@@ -120,7 +120,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {serviceImages.map((image, index) => (
               <CardContainer key={index} className="inter-var">
-                <CardBody className="bg-gray-50 relative group/card h-full border shadow-lg rounded-md p-6 transform transition-all duration-300 hover:scale-105 w-[18rem]">
+                <CardBody className="bg-gray-50 relative group/card h-full border shadow-lg rounded-md p-12 transform transition-all duration-300 hover:scale-105 flex flex-col justify-between gap-4 w-[95%]">
                   <CardItem translateZ="100" className="w-full ">
                     <Image
                       src={image.src}
@@ -425,3 +425,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+
