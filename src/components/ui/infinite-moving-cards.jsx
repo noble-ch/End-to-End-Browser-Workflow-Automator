@@ -57,19 +57,19 @@ export const InfiniteMovingCards = ({
     (<div
       ref={containerRef}
       className={cn(
-        "tw-scroller tw-relative tw-z-20 tw- tw-max-w-7xl tw-overflow-hidden tw- [mask-image:tw-linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
+        "scroller relative z-20  max-w-7xl overflow-hidden  [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
         className
       )}>
       <ul
         ref={scrollerRef}
         className={cn(
-          "tw- tw-flex tw-min-w-full tw-shrink-0 tw-gap-4 tw-py-4 tw-w-max tw-flex-nowrap",
-          start && "tw-animate-scroll tw-",
-          pauseOnHover && "hover:[animation-play-state:tw-paused]"
+          " flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
+          start && "animate-scroll ",
+          pauseOnHover && "hover:[animation-play-state:paused]"
         )}>
         {items.map((item, idx) => (
           <li
-            className="tw-w-[350px] tw-max-w-full tw-relative tw-rounded-2xl tw-border tw-border-b-0 tw-flex-shrink-0 tw-border-slate-700 tw-px-8 tw-py-6 md:tw-w-[450px]"
+            className="w-[350px] max-w-full relative rounded-2xl border border-b-0 flex-shrink-0 border-slate-700 px-8 py-6 md:w-[450px]"
             style={{
               background:
                 "linear-gradient(180deg, var(--slate-800), var(--slate-900)",
@@ -78,20 +78,17 @@ export const InfiniteMovingCards = ({
             <blockquote>
               <div
                 aria-hidden="true"
-                className="tw-user-select-none tw--z-1 tw-pointer-events-none tw-absolute tw--left-0.5 tw--top-0.5 tw-h-[calc(100%_+_4px)] tw-w-[calc(100%_+_4px)]"></div>
+                className="user-select-none -z-1 pointer-events-none absolute -left-0.5 -top-0.5 h-[calc(100%_+_4px)] w-[calc(100%_+_4px)]"></div>
               <span
-                className="tw- tw-relative tw-z-20 tw-text-sm tw-leading-[1.6] tw-text-gray-100 tw-font-normal">
+                className=" relative z-20 text-sm leading-[1.6] text-gray-700 font-normal">
                 {item.quote}
               </span>
-              <div
-                className="tw-relative tw-z-20 tw-mt-6 tw-flex tw-flex-row tw-items-center">
-                <span className="tw-flex tw-flex-col tw-gap-1">
-                  <span
-                    className="tw- tw-text-sm tw-leading-[1.6] tw-text-gray-400 tw-font-normal">
+              <div className="relative z-20 mt-6 flex flex-row items-center">
+                <span className="flex flex-col gap-1">
+                  <span className=" text-sm leading-[1.6] text-gray-700 font-normal">
                     {item.name}
                   </span>
-                  <span
-                    className="tw- tw-text-sm tw-leading-[1.6] tw-text-gray-400 tw-font-normal">
+                  <span className=" text-sm leading-[1.6] text-gray-700 font-normal">
                     {item.title}
                   </span>
                 </span>
