@@ -14,6 +14,7 @@ import image6 from "../../public/workspace.jpg";
 import image7 from "../../public/workspace2.jpg";
 import { FaArrowRight } from "react-icons/fa";
 import BackToTopButton from "../components/BackToTopButton";
+import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 
 const LandingPage = () => {
   const router = useRouter();
@@ -64,6 +65,19 @@ const LandingPage = () => {
     },
   ];
 
+  const testimonials = [
+    {
+      quote:
+      "This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!",
+      name: "Mike Taylor",
+      title: "Lahore, Pakistan",
+    },
+    {
+      quote: "As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency.",
+      name: "Chris Thomas",
+      title:  "CEO of Red Button",
+    },
+  ];
   return (
     <div className="font-sans">
       {/* Header Section */}
@@ -113,8 +127,8 @@ const LandingPage = () => {
       {/* Services Section */}
       <section id="features" className="py-16 bg-gray-50">
         <div className="container mx-auto text-center">
-          <h2 className="text-2xl text-gray-500 mb-8">Our Key Features</h2>
-          <h3 className="text-3xl font-bold text-gray-800 mb-12">
+          <h2 className="text-2xl text-gray-500 mb-2">Our Key Features</h2>
+          <h3 className="text-3xl font-bold text-gray-800">
             Transform Your Workflow with Automation
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -320,7 +334,7 @@ const LandingPage = () => {
 
       {/* Testimonials Section */}
       <section className="py-16 bg-gray-50">
-        <div className="container mx-auto text-center">
+      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">
             What People Say About Us
           </h2>
@@ -353,6 +367,16 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+      <InfiniteMovingCards
+        items={testimonials}
+        direction="right"
+        speed="fast"
+      />
+    </div>
+
+      {/* {Get in Touch} */}
       <section id="information" className="py-16 bg-gray-800 text-white">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Get In Touch</h2>
