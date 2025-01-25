@@ -95,13 +95,13 @@ const Dashboard = () => {
             {/* //left side of the dashboard */}
             <div className="flex flex-col flex-1 gap-4 ">
               <div className="aspect-video rounded-xl bg-muted/50 border">
-              <TaskChart/>
+                <TaskChart />
               </div>
-              <TotalTask/>
+              <TotalTask />
               <div className="flex flex-2 justify-end items-center rounded-xl bg-muted/50 border w-full">
-  <TaskFormDialog className="pl-5" />
-</div>
-</div>
+                <TaskFormDialog className="pl-5" />
+              </div>
+            </div>
           </div>
         </SidebarInset>
       </SidebarProvider>

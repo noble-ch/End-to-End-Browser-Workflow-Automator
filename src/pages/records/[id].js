@@ -14,8 +14,6 @@ import DescriptionDisplayer from "@/components/DescriptionDisplayer";
 import { Atom } from "react-loading-indicators";
 import { Progress } from "@/components/ui/progress";
 import TaskScheduler from "@/components/TaskScheduler";
-import EditScheduler from "@/components/EditScheduler";
-import { run } from "agenda/dist/job/run";
 
 function RecordDetail() {
   const [record, setRecord] = useState(null);
@@ -205,7 +203,11 @@ function RecordDetail() {
         </div>
       )}
 
-      <div className={`grid grid-cols-1 lg:grid-cols-2 ${loading ? "blur-sm" : ""}`}>
+      <div
+        className={`grid grid-cols-1 lg:grid-cols-2 ${
+          loading ? "blur-sm" : ""
+        }`}
+      >
         <div>
           <Card>
             <div className="flex justify-between items-center">
@@ -229,7 +231,7 @@ function RecordDetail() {
               <CardTitle>Details</CardTitle>
             </CardHeader>
             <CardContent className="h-[330] flex flex-row justify-between h-ful">
-              <CardDescription >
+              <CardDescription>
                 <p className="text-gray-700 mb-2">
                   <strong>Description:</strong> {record.description}
                 </p>
@@ -270,16 +272,34 @@ function RecordDetail() {
                     >
                       {running ? "Running... " : "Run Now"}
                     </Button>
+                    {running && (
+                      <div
+                        style={{}}
+                        className="grid grid-cols-12 mt-6  rounded p-0"
+                      >
+                        <Progress
+                          value={progress}
+                          max={100}
+                          className="w-full col-span-11 my-auto"
+                        />
+                        <p
+                          style={{ fontSize: "10px" }}
+                          className="text-black font-semibold "
+                        >
+                          {`${progress}%`}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="text-gray-700">No file available</p>
                 )}
               </CardDescription>
               <TaskScheduler
-              aIGeneratedCode={aIGeneratedCode}
-              recordId={id}
-              scriptId={geminiResponseData?.id}
-            />
+                aIGeneratedCode={aIGeneratedCode}
+                recordId={id}
+                scriptId={geminiResponseData?.id}
+              />
             </CardContent>
           </Card>
         </div>
@@ -293,4 +313,3 @@ function RecordDetail() {
 }
 
 export default RecordDetail;
-

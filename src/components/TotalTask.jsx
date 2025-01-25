@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
 function TotalTask() {
-  const [totalTasks, setTotalTasks] = useState(0); // Assuming totalTasks is a number
-  const [completedTasks, setCompletedTasks] = useState(0); // Optional: Store completed task count separately
-  const [error, setError] = useState(null); // Optional: Handle errors if needed
+  const [totalTasks, setTotalTasks] = useState(0); 
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -14,12 +14,11 @@ function TotalTask() {
         }
         const tasks = await response.json();
         
-        // Assuming the API returns an object like { total: number, completed: number }
-        setTotalTasks(tasks.total || 0); // Fallback to 0 if `tasks.total` is undefined
-        setCompletedTasks(tasks.completed || 0); // Fallback to 0 if `tasks.completed` is undefined
+        setTotalTasks(tasks.total || 0); 
+        setCompletedTasks(tasks.completed || 0);
       } catch (error) {
         console.error("Error fetching tasks:", error);
-        setError(error.message); // Optional: Store the error message
+        setError(error.message);
       }
     };
 
@@ -28,16 +27,14 @@ function TotalTask() {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 p-4 bg-muted/50 border rounded-xl">
+      <div className="flex flex-col gap-4 p-4  border rounded-xl">
         <h3 className="text-lg font-bold">Summary</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col items-center justify-center bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-600">Total Tasks</p>
-            <p className="text-2xl font-bold">{totalTasks}</p>
-          </div>
-          <div className="flex flex-col items-center justify-center bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-600">Completed Tasks</p>
-            <p className="text-2xl font-bold">{completedTasks}</p>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="flex flex-col  justify-center  p-4 rounded-xl shadow">
+            <p className="text-sm text-gray-600">Total Tasks: {totalTasks}</p>
+            <p className="text-sm text-gray-600">Completed Tasks: {completedTasks}</p>
+
+            <p className="text-2xl font-bold"></p>
           </div>
         </div>
         {error && (
