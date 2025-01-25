@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	darkMode: ['class'], // Enable dark mode using the 'class' strategy
+	darkMode: ['class'], 
 	theme: {
     	extend: {
     		colors: {
@@ -64,7 +64,7 @@ export default {
     		}
     	}
     },
-	content: ['./src/**/*.{js,ts,jsx,tsx}'], // Ensure this matches your file structure
+	content: ['./src/**/*.{js,ts,jsx,tsx}'], 
 	plugins: [require('tailwindcss-animate')],
   };
   

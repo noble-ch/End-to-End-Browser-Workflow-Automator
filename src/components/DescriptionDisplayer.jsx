@@ -128,12 +128,12 @@ function DescriptionDisplayer({ id }) {
                   key={index}
                 >
                   {isEditing ? (
-                    <div className="grid grid-cols-12 mb-4">
+                    <div className="grid grid-cols-12 mb-0">
                       <Textarea
                         value={line}
                         onChange={(e) => handleDescriptionChange(e, index)}
                         rows={1}
-                        className="col-span-10 resize-none min-h-[40px] overflow-hidden p-2 border rounded shadow-sm"
+                        className="col-span-10 resize-none min-h-[40px] overflow p-0 border rounded shadow-sm"
                         style={{ height: "auto" }}
                         onInput={(e) => {
                           e.target.style.height = "auto";
@@ -141,7 +141,7 @@ function DescriptionDisplayer({ id }) {
                         }}
                       />
 
-                      <div className="col-span-2 grid grid-rows-2 grid-cols-1 justify-center mb-2 mx-4 ">
+                      <div className="col-span-2 grid grid-rows-2 grid-cols-1 justify-center mb-1 mx-4 ">
                         <Button
                           type="button"
                           onClick={() => handleRemoveTextarea(index)}
@@ -179,9 +179,15 @@ function DescriptionDisplayer({ id }) {
           )}
         </CardContent>
         {isEditing && (
-          <Button className="flex" type="button" onClick={handleSubmit}>
+          <div className="flex"> 
+             <Button variant="outline" className="flex m-2" type="button" onClick={() => setIsEditing(false)}>
+            cancle
+          </Button>
+          <Button className="flex m-2" type="button" onClick={handleSubmit}>
             Submit
           </Button>
+          </div>
+         
         )}
       </Card>
     </div>
