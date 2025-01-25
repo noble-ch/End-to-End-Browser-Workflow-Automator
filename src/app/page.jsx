@@ -67,14 +67,15 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      quote: `"This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!"`,
+      quote:
+      "This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!",
       name: "Mike Taylor",
       title: "Lahore, Pakistan",
     },
     {
-      quote: `"As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency."`,
+      quote: "As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency.",
       name: "Chris Thomas",
-      title: "CEO of Red Button",
+      title:  "CEO of Red Button",
     },
   ];
   return (
@@ -82,47 +83,46 @@ const LandingPage = () => {
       {/* Header Section */}
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-[#FF7A00] to-[#FF4C00] py-16 mb-6 text-white">
-        <div className="container mx-auto relative z-10 max-w-6xl grid grid-rows-1 grid-cols-2 gap-8 p-4">
-          <div className="text-center md:text-left pt-24">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
-              Empower Your Web Automation
-            </h1>
-            <p className="text-lg text-white opacity-90 mb-8">
-              Effortlessly automate your browser interactions and turn them into
-              executable code using our intuitive platform. No need to write
-              complex scripts.
-            </p>
-            <div className="flex justify-center md:justify-start gap-6">
-              <Button
-                onClick={handleLearnMore}
-                variant="default"
-                className="transition-all duration-300 hover:scale-105"
-              >
-                Learn More
-              </Button>
-              <Button
-                onClick={handleDemoPlay}
-                variant="outline"
-                className="transition-all duration-300 hover:scale-105 text-black border-white hover:bg-white hover:text-black"
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
-          <div className="ms-10 mt-10">
-            <Image
-              src="/chilingperson.png"
-              alt="Relaxing Person"
-              width={500}
-              height={500}
-              className="rounded-xl  "
-            />
-          </div>
-        </div>
-      </section>
-
+    {/* Hero Section */}
+<section className="relative bg-gradient-to-b from-[#FF7A00] to-[#FF4C00] py-16 mb-6 text-white">
+  <div className="container mx-auto relative z-10 max-w-6xl grid grid-rows-1 md:grid-cols-2 gap-8 p-4">
+    <div className="mb-8 md:mb-0 md:order-2">
+      <Image
+        src="/chilingperson.png"
+        alt="Relaxing Person"
+        width={500}
+        height={500}
+        className="rounded-xl mx-auto md:ms-10 md:mt-10"
+      />
+    </div>
+    <div className="text-center md:text-left pt-0 md:pt-24">
+      <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
+        Empower Your Web Automation
+      </h1>
+      <p className="text-lg text-white opacity-90 mb-8">
+        Effortlessly automate your browser interactions and turn them into
+        executable code using our intuitive platform. No need to write
+        complex scripts.
+      </p>
+      <div className="flex justify-center md:justify-start gap-6">
+        <Button
+          onClick={handleLearnMore}
+          variant="default"
+          className="transition-all duration-300 hover:scale-105"
+        >
+          Learn More
+        </Button>
+        <Button
+          onClick={handleDemoPlay}
+          variant="outline"
+          className="transition-all duration-300 hover:scale-105 text-black border-white hover:bg-white hover:text-black"
+        >
+          Get Started
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
       {/* Services Section */}
       <section id="features" className="py-16 bg-gray-50">
         <div className="container mx-auto text-center">
@@ -133,7 +133,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {serviceImages.map((image, index) => (
               <CardContainer key={index} className="inter-var">
-                <CardBody className="bg-gray-50 relative group/card h-full border shadow-lg rounded-md p-12 transform transition-all duration-300 hover:scale-105 flex flex-col justify-between gap-4 w-[95%]">
+                <CardBody className="bg-gray-50 relative group/card h-full border shadow-lg rounded-md p-6 transform transition-all duration-300 hover:scale-105 w-[18rem]">
                   <CardItem translateZ="100" className="w-full ">
                     <Image
                       src={image.src}
@@ -332,20 +332,15 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-gray-50">
-        <div className=" pt-16 rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 ">
-            What People Say About Us
-          </h2>
-          <div className="rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-            <InfiniteMovingCards
-              items={testimonials}
-              direction="right"
-              speed="normal"
-            />
-          </div>
-        </div>
-      </section>
+    
+
+      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+      <InfiniteMovingCards
+        items={testimonials}
+        direction="right"
+        speed="fast"
+      />
+    </div>
 
       {/* {Get in Touch} */}
       <section id="information" className="py-16 bg-gray-800 text-white">
