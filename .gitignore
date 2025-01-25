@@ -41,4 +41,5 @@ yarn-error.log*
 next-env.d.ts
 /uploads
 output/
-/test
+test/sample_puppeteers
+
