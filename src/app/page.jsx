@@ -67,15 +67,14 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      quote:
-      "This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!",
+      quote: `"This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!"`,
       name: "Mike Taylor",
       title: "Lahore, Pakistan",
     },
     {
-      quote: "As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency.",
+      quote: `"As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency."`,
       name: "Chris Thomas",
-      title:  "CEO of Red Button",
+      title: "CEO of Red Button",
     },
   ];
   return (
@@ -334,47 +333,19 @@ const LandingPage = () => {
 
       {/* Testimonials Section */}
       <section className="py-16 bg-gray-50">
-      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+        <div className=" pt-16 rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8 ">
             What People Say About Us
           </h2>
-          <div className="flex flex-col sm:flex-row justify-center gap-8">
-            {[
-              {
-                name: "Mike Taylor",
-                location: "Lahore, Pakistan",
-                testimonial:
-                  "This platform has revolutionized how we handle web automation. It was quick to set up and super intuitive to use!",
-              },
-              {
-                name: "Chris Thomas",
-                location: "CEO of Red Button",
-                testimonial:
-                  "As a company, we save countless hours on manual testing. This tool has significantly boosted our productivity and testing efficiency.",
-              },
-            ].map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-lg rounded-md p-6 w-full sm:w-1/2 transform transition-all duration-300 hover:scale-105"
-              >
-                <p className="italic text-gray-600 mb-4">
-                  "{testimonial.testimonial}"
-                </p>
-                <h3 className="font-bold text-gray-800">{testimonial.name}</h3>
-                <p className="text-sm text-gray-600">{testimonial.location}</p>
-              </div>
-            ))}
+          <div className="rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+            <InfiniteMovingCards
+              items={testimonials}
+              direction="right"
+              speed="normal"
+            />
           </div>
         </div>
       </section>
-
-      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white  dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-      <InfiniteMovingCards
-        items={testimonials}
-        direction="right"
-        speed="fast"
-      />
-    </div>
 
       {/* {Get in Touch} */}
       <section id="information" className="py-16 bg-gray-800 text-white">
@@ -449,5 +420,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
-
