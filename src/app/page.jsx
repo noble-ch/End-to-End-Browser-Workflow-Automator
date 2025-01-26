@@ -356,8 +356,8 @@ const LandingPage = () => {
             <div className="">
               <h3 className="text-xl font-semibold mb-4">Our Address</h3>
               <p className="text-lg">1234 Web Automation St.</p>
-              <p className="text-lg">San Francisco, CA 94101</p>
-              <p className="text-lg">United States</p>
+              <p className="text-lg">Addis Ababa, AA 94101</p>
+              <p className="text-lg">Ethiopia</p>
             </div>
 
             {/* Contact Section */}
